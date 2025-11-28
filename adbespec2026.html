@@ -1,650 +1,1969 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe CC 2026 政府/教育採購規格產生器</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Adobe CC 2026 採購規格輔助系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --accent-indigo: #4f46e5;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-slate: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+    }
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .mobile-header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #dc2626;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 280px;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      z-index: 40;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+      box-shadow: 0 0 20px rgba(15, 23, 42, 0.2);
+    }
+    .sidebar-inner {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      height: 100%;
+    }
+    .sidebar-header-desktop {
+      display: none;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .sidebar-group-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      padding: 0 0.25rem;
+    }
+    .lic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .lic-btn {
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+    }
+    .lic-btn-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 0.35rem;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lic-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.8;
+    }
+    .lic-btn.active {
+      background: #eff6ff;
+      color: #1d4ed8;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+    }
+    .lic-btn.active .lic-btn-icon {
+      background: #ffffff;
+    }
+    .sidebar-close-wrap {
+      display: flex;
+      justify-content: flex-end;
+      padding-bottom: 0.5rem;
+    }
+    .sidebar-close-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #9ca3af;
+    }
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 35;
+      display: none;
+    }
+    .sidebar-overlay.show {
+      display: block;
+    }
+    .main {
+      padding: 1rem;
+      flex: 1;
+    }
+    .main-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-bottom: 2rem;
+    }
+    .main-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .main-header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .main-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .main-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+    .main-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .tender-toggle {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      background: #e5e7eb;
+      border-radius: 0.75rem;
+      border: 1px solid #cbd5e1;
+      overflow-x: auto;
+    }
+    .tender-btn {
+      border-radius: 0.5rem;
+      border: none;
+      background: transparent;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      white-space: nowrap;
+      color: var(--text-sub);
+    }
+    .tender-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+    .tender-btn.active.flagship {
+      background: #ffffff;
+      color: var(--accent-indigo);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+    }
+    .tender-btn.active.essential {
+      background: #ffffff;
+      color: var(--accent-emerald);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+    }
+    .tender-btn.active.substance {
+      background: #ffffff;
+      color: var(--accent-amber);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+    }
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .btn {
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    .btn-primary {
+      background: #020617;
+      color: #ffffff;
+      border-color: #020617;
+    }
+    .btn-primary.copied {
+      background: #166534;
+    }
+    .btn-audit-on {
+      background: #fef3c7;
+      border-color: #facc15;
+      color: #92400e;
+    }
+    .summary-banner {
+      border-radius: 0.9rem;
+      padding: 1.25rem;
+      color: #ffffff;
+      position: relative;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
+      overflow: hidden;
+    }
+    .summary-banner.flagship {
+      background: linear-gradient(90deg, #4c1d95, #4338ca);
+    }
+    .summary-banner.essential {
+      background: linear-gradient(90deg, #047857, #0f766e);
+    }
+    .summary-banner.substance {
+      background: linear-gradient(90deg, #ea580c, #d97706);
+    }
+    .summary-banner-icon-bg {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      opacity: 0.12;
+    }
+    .summary-banner-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .summary-banner-advisory {
+      display: flex;
+      gap: 0.75rem;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(15, 23, 42, 0.3);
+      border: 1px solid rgba(248, 250, 252, 0.35);
+      margin-bottom: 0.75rem;
+    }
+    .summary-banner-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    @media (min-width: 768px) {
+      .summary-banner-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    .summary-banner-card {
+      background: rgba(15, 23, 42, 0.35);
+      border-radius: 0.6rem;
+      padding: 0.75rem;
+      border: 1px solid rgba(248, 250, 252, 0.35);
+    }
+    .summary-banner-card-label {
+      font-size: 0.7rem;
+      color: rgba(241, 245, 249, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-bottom: 0.2rem;
+    }
+    .summary-banner-card-value {
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+    .summary-banner-card-sub {
+      font-size: 0.65rem;
+      color: rgba(241, 245, 249, 0.7);
+    }
+    .tables-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .table-card {
+      background: var(--bg-card);
+      border-radius: 0.9rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    .table-card-header {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: #f8fafc;
+    }
+    .table-card-header svg {
+      width: 18px;
+      height: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    thead {
+      background: #f8fafc;
+      color: #6b7280;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    th, td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
+    }
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+    .app-name-btn {
+      border: none;
+      background: transparent;
+      padding: 0;
+      text-align: left;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    .app-icon-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 0.5rem;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .app-icon-badge svg {
+      width: 18px;
+      height: 18px;
+    }
+    .app-name-main {
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .app-chip-eol {
+      padding: 0.1rem 0.25rem;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #4b5563;
+      text-transform: uppercase;
+      font-size: 0.6rem;
+    }
+    .app-version {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-top: 0.15rem;
+    }
+    .app-platform-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.2rem;
+      margin-top: 0.15rem;
+    }
+    .platform-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 0.1rem 0.35rem;
+      border-radius: 999px;
+      border: 1px solid;
+    }
+    .platform-badge.web {
+      background: #e0f2fe;
+      border-color: #bfdbfe;
+      color: #0369a1;
+    }
+    .platform-badge.ios {
+      background: #e0e7ff;
+      border-color: #c7d2fe;
+      color: #4f46e5;
+    }
+    .platform-badge.android {
+      background: #dcfce7;
+      border-color: #bbf7d0;
+      color: #15803d;
+    }
+    .app-dimmed {
+      opacity: 0.45;
+      filter: grayscale(0.35);
+    }
+    .app-alert-pill {
+      margin-top: 0.25rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.35rem;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .app-alert-pill svg {
+      width: 11px;
+      height: 11px;
+    }
+    .app-alert-eol {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .app-alert-normal {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .audit-col {
+      background: #fffbeb;
+      border-left: 1px solid #fed7aa;
+      min-width: 130px;
+    }
+    .audit-link {
+      font-size: 0.75rem;
+      color: #2563eb;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      margin-bottom: 0.25rem;
+    }
+    .audit-link svg {
+      width: 12px;
+      height: 12px;
+    }
+    .audit-checkbox-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .restricted-note {
+      background: #e5e7eb;
+      border-radius: 0.9rem;
+      border: 1px solid #cbd5e1;
+      padding: 1.25rem;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+    .restricted-note svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.25rem;
+      color: #9ca3af;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-backdrop.show {
+      display: flex;
+    }
+    .modal {
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+      position: relative;
+      border: 1px solid #e2e8f0;
+    }
+    .modal-close {
+      position: absolute;
+      right: 0.75rem;
+      top: 0.75rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #9ca3af;
+    }
+    .modal-icon {
+      margin-bottom: 0.75rem;
+      width: 64px;
+      height: 64px;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-icon.desktop {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+    .modal-icon.substance {
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+    .modal-icon.cloud {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+    .modal-icon.eol {
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.15rem;
+      text-align: center;
+    }
+    .modal-subtitle {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .modal-body {
+      background: #f1f5f9;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      font-size: 0.82rem;
+      color: #4b5563;
+      margin-bottom: 0.75rem;
+    }
+    .modal-link-btn {
+      border-radius: 0.75rem;
+      border: none;
+      background: #020617;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.6rem 0.75rem;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .modal-link-btn svg {
+      width: 14px;
+      height: 14px;
+    }
 
-    <style>
-        /* 基礎動畫設定 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        /* 隱藏滾動條但保留功能 (針對側邊欄) */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* 模擬 React 的 backdrop-blur */
-        .backdrop-blur-sm {
-            backdrop-filter: blur(4px);
-        }
-        .backdrop-blur-md {
-            backdrop-filter: blur(12px);
-        }
-    </style>
+    @media (min-width: 1024px) {
+      .app {
+        flex-direction: row;
+      }
+      .mobile-header {
+        display: none;
+      }
+      .sidebar {
+        position: static;
+        transform: none !important;
+        width: 280px;
+      }
+      .sidebar-overlay {
+        display: none !important;
+      }
+      .sidebar-header-desktop {
+        display: block;
+      }
+      .sidebar-close-wrap {
+        display: none;
+      }
+      .main {
+        margin-left: 280px;
+        width: calc(100% - 280px);
+        padding: 1.5rem 2rem;
+        max-height: 100vh;
+        overflow-y: auto;
+      }
+      .main-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .main-controls {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .tender-toggle {
+        width: auto;
+      }
+    }
+  </style>
 
-    <script>
-        // 設定 Tailwind config 以支援動態 class
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' },
-                    }
-                }
-            }
-        }
-    </script>
+  <!-- SVG symbol sprite (簡化版圖示) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <!-- 基本圖示 -->
+    <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="2" y1="12" x2="22" y2="12"></line>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </symbol>
+    <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="4" width="18" height="14" rx="2"></rect>
+      <line x1="8" y1="20" x2="16" y2="20"></line>
+      <line x1="12" y1="18" x2="12" y2="20"></line>
+    </symbol>
+    <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+      <rect x="9" y="9" width="6" height="6"></rect>
+      <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"></path>
+    </symbol>
+    <symbol id="icon-hard-drive" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="7" width="18" height="10" rx="2"></rect>
+      <circle cx="7" cy="12" r="1"></circle>
+      <circle cx="11" cy="12" r="1"></circle>
+      <line x1="15" y1="12" x2="18" y2="12"></line>
+    </symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="m12 2 9 5-9 5-9-5 9-5z"></path>
+      <path d="m3 12 9 5 9-5"></path>
+      <path d="m3 17 9 5 9-5"></path>
+    </symbol>
+    <symbol id="icon-video" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="5" width="13" height="14" rx="2"></rect>
+      <path d="m16 9 5-3v12l-5-3z"></path>
+    </symbol>
+    <symbol id="icon-image" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+      <circle cx="8.5" cy="9.5" r="1.5"></circle>
+      <path d="m21 15-3.5-3.5a2.1 2.1 0 0 0-3 0L9 18"></path>
+    </symbol>
+    <symbol id="icon-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
+      <path d="M14 2v5h5"></path>
+      <path d="M8 13h8M8 17h5"></path>
+    </symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="m9 12 2 2 4-4"></path>
+    </symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </symbol>
+    <symbol id="icon-pen-tool" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="m12 19 4-9-4-2-4 2 4 9Z"></path>
+      <path d="M8 7h8"></path>
+      <path d="M5 3h4v4H5V3Z"></path>
+      <path d="M15 3h4v4h-4V3Z"></path>
+      <path d="M3 11v-1h2"></path>
+      <path d="M19 10h2v1"></path>
+    </symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="3" width="7" height="7"></rect>
+      <rect x="14" y="3" width="7" height="7"></rect>
+      <rect x="14" y="14" width="7" height="7"></rect>
+      <rect x="3" y="14" width="7" height="7"></rect>
+    </symbol>
+    <symbol id="icon-school" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M22 9 12 5 2 9l10 4 10-4z"></path>
+      <path d="M6 10.6V16L12 19l6-3v-5.4"></path>
+    </symbol>
+    <symbol id="icon-building-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M3 21h18"></path>
+      <path d="M4 21V9a2 2 0 0 1 2-2h4"></path>
+      <path d="M20 21V7a2 2 0 0 0-2-2h-4"></path>
+      <path d="M9 17v-2"></path>
+      <path d="M9 13v-2"></path>
+      <path d="M15 17v-2"></path>
+      <path d="M15 13v-2"></path>
+    </symbol>
+    <symbol id="icon-shield-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      <path d="M12 8v4"></path>
+      <circle cx="12" cy="16" r="1"></circle>
+    </symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="7" r="4"></circle>
+      <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+    </symbol>
+    <symbol id="icon-clapperboard" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="2" y="7" width="20" height="15" rx="2"></rect>
+      <path d="M2 7h20"></path>
+      <path d="m6 2 3 5"></path>
+      <path d="m11 2 3 5"></path>
+      <path d="m16 2 3 5"></path>
+    </symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="m16 18 6-6-6-6"></path>
+      <path d="m8 6-6 6 6 6"></path>
+    </symbol>
+    <symbol id="icon-brush" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M9.5 6.5 4 12l4 4 5.5-5.5"></path>
+      <path d="M15 5 19 1l4 4-4 4"></path>
+      <path d="M4 20h7"></path>
+    </symbol>
+    <symbol id="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="9" y="2" width="6" height="11" rx="3"></rect>
+      <path d="M5 10a7 7 0 0 0 14 0"></path>
+      <path d="M12 19v3"></path>
+      <path d="M8 22h8"></path>
+    </symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </symbol>
+    <symbol id="icon-cloud-off" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="m2 2 20 20"></path>
+      <path d="M7 16a4 4 0 0 1-.88-7.9 5 5 0 0 1 9.8-1.3"></path>
+      <path d="M17.5 17H9"></path>
+    </symbol>
+    <symbol id="icon-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M17.5 19a4.5 4.5 0 0 0 .5-9 6 6 0 0 0-11.31-1A4 4 0 0 0 7 19Z"></path>
+    </symbol>
+    <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M12 3 10 8 5 10l5 2 2 5 2-5 5-2-5-2-2-5Z"></path>
+      <path d="M5 3v4"></path>
+      <path d="M19 17v4"></path>
+    </symbol>
+    <symbol id="icon-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+      <path d="M12 3v18"></path>
+      <path d="M3 9h9"></path>
+    </symbol>
+    <symbol id="icon-tablet" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="5" y="2" width="14" height="20" rx="2"></rect>
+      <line x1="12" y1="18" x2="12.01" y2="18"></line>
+    </symbol>
+    <symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M15 3h6v6"></path>
+      <path d="M10 14 21 3"></path>
+      <path d="M5 5v16h16"></path>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M13 2 3 14h9l-1 8 10-12h-9z"></path>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82L4.21 5.1a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </symbol>
+    <symbol id="icon-type" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <polyline points="4 7 4 4 20 4 20 7"></polyline>
+      <line x1="9" y1="20" x2="15" y2="20"></line>
+      <line x1="12" y1="4" x2="12" y2="20"></line>
+    </symbol>
+    <symbol id="icon-clipboard-check" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="8" y="3" width="8" height="4" rx="1"></rect>
+      <path d="M9 3h6"></path>
+      <path d="M9 21H5a2 2 0 0 1-2-2V8"></path>
+      <path d="M15 21h4a2 2 0 0 0 2-2V8"></path>
+      <path d="m9 12 2 2 4-4"></path>
+    </symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </symbol>
+    <symbol id="icon-calendar-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+      <path d="M16 2v4"></path>
+      <path d="M8 2v4"></path>
+      <path d="M3 10h18"></path>
+      <circle cx="16" cy="16" r="3"></circle>
+      <path d="M16 14v2l1 1"></path>
+    </symbol>
+    <symbol id="icon-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M4 4h16"></path>
+      <path d="M6 8h12"></path>
+      <path d="M8 12h8"></path>
+      <path d="M10 16h4"></path>
+    </symbol>
+    <symbol id="icon-boxes" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M3 7l9-4 9 4-9 4-9-4z"></path>
+      <path d="M3 17l9 4 9-4"></path>
+      <path d="M3 12l9 4 9-4"></path>
+    </symbol>
+    <symbol id="icon-alert-octagon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86L7.86 2z"></path>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </symbol>
+    <symbol id="icon-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="m15 9-6 6"></path>
+      <path d="m9 9 6 6"></path>
+    </symbol>
+    <symbol id="icon-box" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73L13 3.18a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4.09a2 2 0 0 0 2 0l7-4.09a2 2 0 0 0 1-1.73z"></path>
+      <path d="M3.3 7.3 12 12l8.7-4.7"></path>
+      <path d="M12 22V12"></path>
+    </symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M4 7h3l2-3h6l2 3h3v12H4z"></path>
+      <circle cx="12" cy="13" r="4"></circle>
+    </symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <path d="M7 10l5 5 5-5"></path>
+      <path d="M12 15V3"></path>
+    </symbol>
+    <symbol id="icon-smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <rect x="7" y="2" width="10" height="20" rx="2"></rect>
+      <line x1="12" y1="18" x2="12.01" y2="18"></line>
+    </symbol>
+    <symbol id="icon-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M12 3a9 9 0 0 0-9 9 7 7 0 0 0 7 7h1a2 2 0 0 0 2-2 1 1 0 0 1 1-1h1a4 4 0 0 0 4-4 9 9 0 0 0-9-9z"></path>
+      <circle cx="8.5" cy="10.5" r="1"></circle>
+      <circle cx="12" cy="7.5" r="1"></circle>
+      <circle cx="15.5" cy="10.5" r="1"></circle>
+      <circle cx="11" cy="14" r="1"></circle>
+    </symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M18 6 6 18"></path>
+      <path d="m6 6 12 12"></path>
+    </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <line x1="4" y1="6" x2="20" y2="6"></line>
+      <line x1="4" y1="12" x2="20" y2="12"></line>
+      <line x1="4" y1="18" x2="20" y2="18"></line>
+    </symbol>
+  </svg>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased" x-data="adobeApp()">
+<body>
+<div class="app">
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <div class="mobile-header-title">
+      <svg class="icon"><use href="#icon-globe"></use></svg>
+      <span>ADOBE SPEC</span>
+    </div>
+    <button id="mobile-menu-toggle" class="btn" style="padding:0.3rem 0.4rem;border-radius:0.5rem;">
+      <svg><use href="#icon-menu"></use></svg>
+    </button>
+  </header>
 
-    <div class="lg:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-        <div class="flex items-center gap-2 text-red-600 font-black text-lg">
-            <span x-html="icons.globe" class="w-5 h-5"></span>
-            <span>ADOBE SPEC</span>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-header-desktop">
+        <div class="mobile-header-title">
+          <svg class="icon"><use href="#icon-globe"></use></svg>
+          <span>ADOBE SPEC <span style="color:#9ca3af;font-weight:400;font-size:0.75rem;">2026 RWD</span></span>
         </div>
-        <button @click="sidebarOpen = !sidebarOpen" class="p-2 bg-slate-100 rounded-lg text-slate-600">
-            <span x-html="icons.menu" class="w-5 h-5"></span>
+        <div style="font-size:0.65rem;color:#9ca3af;margin-top:0.2rem;">政府/教育 採購規格輔助系統</div>
+      </div>
+
+      <div class="sidebar-close-wrap">
+        <button class="sidebar-close-btn" id="sidebar-close">
+          <svg><use href="#icon-x"></use></svg>
         </button>
+      </div>
+
+      <div>
+        <div class="sidebar-group-title">商業與政府</div>
+        <div id="comm-gov-list" class="lic-list"></div>
+      </div>
+
+      <div>
+        <div class="sidebar-group-title">教育單位 (Education)</div>
+        <div id="edu-list" class="lic-list"></div>
+      </div>
     </div>
+  </aside>
 
-    <div class="lg:flex min-h-screen relative">
-        
-        <div :class="sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'" 
-             class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:static lg:h-screen flex flex-col">
-            
-            <div class="p-4 border-b border-slate-100 hidden lg:block">
-                <div class="flex items-center gap-2 text-red-600 font-black text-lg">
-                    <span x-html="icons.globe" class="w-5 h-5"></span>
-                    <span>ADOBE SPEC <span class="text-slate-400 font-normal text-sm">2026 RWD</span></span>
-                </div>
-                <div class="text-[10px] text-slate-400 font-medium mt-1">政府/教育 採購規格輔助系統</div>
-            </div>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-            <div class="p-4 lg:hidden flex justify-end">
-                <button @click="sidebarOpen = false" class="text-slate-400">
-                    <span x-html="icons.x" class="w-6 h-6"></span>
-                </button>
-            </div>
-
-            <div class="flex flex-col gap-6 p-4 overflow-y-auto flex-1 scrollbar-hide">
-                <div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">商業與政府</div>
-                    <div class="space-y-1">
-                        <template x-for="lic in licenses.filter(l => l.group === 'comm_gov')" :key="lic.id">
-                            <button @click="switchLicense(lic.id)" 
-                                    :class="activeLicId === lic.id ? `bg-${lic.color}-50 border border-${lic.color}-200 text-${lic.color}-800 shadow-sm` : 'hover:bg-slate-50 text-slate-600'"
-                                    class="w-full flex items-center gap-3 p-2.5 rounded-lg transition-all text-left border border-transparent">
-                                <div :class="activeLicId === lic.id ? 'bg-white' : 'bg-slate-100'" class="p-1.5 rounded-md text-current">
-                                    <span x-html="lic.iconHtml" class="w-4 h-4"></span>
-                                </div>
-                                <span class="text-sm font-bold" x-text="lic.short"></span>
-                            </button>
-                        </template>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">教育單位 (Education)</div>
-                    <div class="space-y-1">
-                        <template x-for="lic in licenses.filter(l => l.group === 'edu')" :key="lic.id">
-                            <button @click="switchLicense(lic.id)" 
-                                    :class="activeLicId === lic.id ? `bg-${lic.color}-50 border border-${lic.color}-200 text-${lic.color}-800 shadow-sm` : 'hover:bg-slate-50 text-slate-600'"
-                                    class="w-full flex items-center gap-3 p-2.5 rounded-lg transition-all text-left border border-transparent group">
-                                <div :class="activeLicId === lic.id ? 'bg-white' : 'bg-slate-100'" class="p-1.5 rounded-md text-current">
-                                    <span x-html="lic.iconHtml" class="w-4 h-4"></span>
-                                </div>
-                                <div class="flex-1">
-                                    <span class="text-sm font-bold flex items-center gap-1">
-                                        <span x-text="lic.short"></span>
-                                        <span x-show="activeLicId !== lic.id" class="opacity-0 group-hover:opacity-100 transition-opacity text-xs">🎓</span>
-                                    </span>
-                                </div>
-                            </button>
-                        </template>
-                    </div>
-                </div>
-            </div>
+  <!-- Main Content -->
+  <main class="main">
+    <div class="main-inner">
+      <section class="main-header">
+        <div class="main-header-top">
+          <h1 id="lic-title" class="main-title"></h1>
+          <p id="lic-subtitle" class="main-subtitle"></p>
         </div>
-
-        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity" style="display: none;"></div>
-
-        <div class="flex-1 p-4 lg:p-8 lg:overflow-y-auto lg:h-screen w-full pb-24">
-            <div class="max-w-7xl mx-auto space-y-8">
-                
-                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 animate-fade-in">
-                    <div>
-                        <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2" x-text="activeLic.name"></h1>
-                        <p class="text-slate-500 text-sm mt-1">
-                            <span x-show="activeLic.type === 'restricted'">⚠️ 限制型授權：僅包含桌面端軟體，已自動過濾不適用項目。</span>
-                            <span x-show="activeLic.type !== 'restricted'">✅ 完整型授權：包含桌面、行動裝置與雲端服務。</span>
-                        </p>
-                    </div>
-                    
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 w-full sm:w-auto overflow-x-auto">
-                            <button @click="tenderLevel = 'flagship'" :class="tenderLevel === 'flagship' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'" class="flex-1 sm:flex-none whitespace-nowrap flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all">
-                                <span x-html="icons.clapperboard" class="w-3.5 h-3.5"></span> 全套旗艦
-                            </button>
-                            <button @click="tenderLevel = 'essential'" :class="tenderLevel === 'essential' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'" class="flex-1 sm:flex-none whitespace-nowrap flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all">
-                                <span x-html="icons.penTool" class="w-3.5 h-3.5"></span> 基礎平面
-                            </button>
-                            <button x-show="activeLic.isEdu && activeLic.id !== 'gov_frl'" @click="tenderLevel = 'substance'" :class="tenderLevel === 'substance' ? 'bg-white text-amber-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'" class="flex-1 sm:flex-none whitespace-nowrap flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all">
-                                <span x-html="icons.box" class="w-3.5 h-3.5"></span> Substance 專用
-                            </button>
-                        </div>
-
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button @click="isAuditMode = !isAuditMode" :class="isAuditMode ? 'bg-amber-100 text-amber-700 border-amber-300 shadow-inner' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-bold border transition-all">
-                                <span x-html="isAuditMode ? icons.eye : icons.clipboardCheck" class="w-4 h-4"></span>
-                                <span class="hidden sm:inline" x-text="isAuditMode ? '關閉稽核' : '資料稽核'"></span>
-                            </button>
-                            <button @click="copyToClipboard()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg shadow-sm transition-all font-medium text-sm">
-                                <span x-html="showCopyFeedback ? icons.checkCircle : icons.copy" class="w-4 h-4" :class="showCopyFeedback ? 'text-green-400' : ''"></span>
-                                <span x-text="showCopyFeedback ? '已複製' : '複製規格'"></span>
-                            </button>
-                            <button @click="downloadFile()" class="flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg shadow-sm transition-all font-medium text-sm" title="下載規格文字檔">
-                                <span x-html="icons.download" class="w-4 h-4"></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-data="{ 
-                        get levelInfo() { 
-                            if(tenderLevel === 'flagship') return { bg: 'bg-gradient-to-r from-violet-600 to-indigo-600', title: '全套旗艦安裝・高階影視門檻', summary: activeLic.summaryFlagship };
-                            if(tenderLevel === 'essential') return { bg: 'bg-gradient-to-r from-emerald-600 to-teal-600', title: '基礎平面安裝・一般設計門檻', summary: activeLic.summaryEssential };
-                            return { bg: 'bg-gradient-to-r from-amber-600 to-orange-600', title: 'Substance 3D 專用・高階 3D 門檻', summary: activeLic.summarySubstance };
-                        }
-                     }"
-                     :class="levelInfo.bg"
-                     class="rounded-xl p-6 text-white shadow-lg relative overflow-hidden transition-colors duration-500 animate-fade-in">
-                    
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <span x-html="icons.zap" class="w-32 h-32 block"></span>
-                    </div>
-
-                    <div class="relative z-10">
-                        <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
-                            <span x-html="icons.checkCircle" class="w-6 h-6 text-white/90"></span>
-                            <span x-text="levelInfo.title"></span>
-                        </h2>
-
-                        <div class="mb-6 bg-black/20 border border-white/20 rounded-lg p-4 flex gap-4 backdrop-blur-md">
-                            <div class="bg-rose-500 text-white p-2 rounded-full h-fit flex-shrink-0">
-                                <span x-html="icons.calendarClock" class="w-5 h-5"></span>
-                            </div>
-                            <div>
-                                <div class="font-bold text-white text-base mb-1">資安風險聲明 (Security Advisory)</div>
-                                <p class="text-sm text-white/90 leading-relaxed opacity-90">
-                                    微軟將於 2025 年 10 月 14 日終止 Windows 10 支援。為資安合規，
-                                    <a href="https://support.microsoft.com/zh-tw/windows/windows-10-%E6%94%AF%E6%8F%B4%E5%B7%B2%E6%96%BC-2025-%E5%B9%B4-10-%E6%9C%88-14-%E6%97%A5%E7%B5%90%E6%9D%9F-2ca8b313-1946-43d3-b55c-2b95b107f281" target="_blank" class="underline font-bold hover:text-rose-200 ml-1">強烈建議採購 Windows 11 (了解更多)</a>。
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" x-show="levelInfo.summary">
-                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><span x-html="icons.hardDrive" class="w-3 h-3"></span> OS 系統</div>
-                                <div class="font-bold text-lg leading-tight" x-text="levelInfo.summary?.os"></div>
-                            </div>
-                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><span x-html="icons.cpu" class="w-3 h-3"></span> 處理器 CPU</div>
-                                <div class="font-bold text-lg" x-text="levelInfo.summary?.cpu"></div>
-                                <div class="text-[10px] text-white/60">支援 AVX2</div>
-                            </div>
-                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><span x-html="icons.layers" class="w-3 h-3"></span> 記憶體 RAM</div>
-                                <div class="font-bold text-lg" x-text="levelInfo.summary?.ram"></div>
-                                <div class="text-[10px] text-white/60" x-text="tenderLevel === 'flagship' ? 'AE/PR 建議' : 'PS/AI 足夠'"></div>
-                            </div>
-                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><span x-html="icons.monitor" class="w-3 h-3"></span> 顯示卡 GPU</div>
-                                <div class="font-bold text-lg" x-text="levelInfo.summary?.gpu"></div>
-                                <div class="text-[10px] text-white/60" x-text="tenderLevel === 'flagship' ? '支援硬體加速' : '基本顯示'"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-show="desktopApps.length > 0" class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-6 py-4 font-bold text-blue-700">
-                        <span x-html="icons.monitor" class="w-5 h-5"></span> 桌面軟體 (Desktop Apps)
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-slate-600">
-                            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                                <tr>
-                                    <th class="px-6 py-3 min-w-[250px]">軟體名稱 / 版本 / 支援平台</th>
-                                    <th class="px-6 py-3 min-w-[150px]">Windows 需求</th>
-                                    <th class="px-6 py-3 min-w-[150px]">macOS 需求</th>
-                                    <th class="px-6 py-3 min-w-[200px]">硬體建議 (RAM / GPU)</th>
-                                    <th x-show="isAuditMode" class="px-6 py-3 min-w-[120px] bg-amber-50 text-amber-800 border-l border-amber-100">官方溯源稽核</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <template x-for="app in desktopApps" :key="app.id">
-                                    <tr class="group hover:bg-slate-50 transition-colors" :class="(tenderLevel === 'essential' && app.is_heavy) ? 'opacity-50 bg-slate-50 grayscale' : ''">
-                                        <td class="px-6 py-4 align-top">
-                                            <button @click="openModal(app)" class="flex items-center gap-3 text-left w-full group-hover:translate-x-1 transition-transform">
-                                                <div class="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600">
-                                                    <span x-html="app.iconHtml" class="w-5 h-5"></span>
-                                                </div>
-                                                <div>
-                                                    <div class="font-bold text-slate-900 flex items-center gap-2">
-                                                        <span x-text="app.name"></span>
-                                                    </div>
-                                                    <div class="mt-1 text-xs text-slate-400" x-text="app.version"></div>
-                                                    <div x-show="(tenderLevel === 'essential' && app.is_heavy)" class="text-[10px] font-bold text-slate-500 mt-1">[非基礎安裝核心軟體]</div>
-                                                    <div x-show="app.alert" class="mt-1 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded w-fit bg-amber-50 text-amber-600">
-                                                        <span x-html="icons.alertTriangle" class="w-2.5 h-2.5"></span>
-                                                        <span x-text="app.alert"></span>
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        </td>
-                                        <td class="px-6 py-4 align-top">
-                                            <div class="font-medium text-slate-700" x-text="app.min_os_win"></div>
-                                            <div x-show="app.min_os_win !== '-'" class="text-xs text-slate-400">最低支援版本</div>
-                                        </td>
-                                        <td class="px-6 py-4 align-top">
-                                            <div class="font-medium" :class="app.min_os_mac.includes('不支援') ? 'text-red-500' : 'text-slate-700'" x-text="app.min_os_mac"></div>
-                                            <div x-show="app.min_os_mac.includes('14') && !(tenderLevel === 'essential' && app.is_heavy)" class="text-[10px] text-amber-600">建議 Sonoma 最佳</div>
-                                        </td>
-                                        <td class="px-6 py-4 align-top">
-                                            <div class="space-y-1">
-                                                <div class="flex justify-between gap-4"><span class="text-slate-400 text-xs">RAM</span><span class="font-medium text-slate-800" x-text="app.rec_ram"></span></div>
-                                                <div class="flex justify-between gap-4"><span class="text-slate-400 text-xs">GPU</span><span class="font-medium text-slate-800" x-text="app.rec_gpu"></span></div>
-                                            </div>
-                                        </td>
-                                        <td x-show="isAuditMode" class="px-6 py-4 align-middle bg-amber-50/30 border-l border-amber-100">
-                                            <div class="flex flex-col gap-2">
-                                                <a :href="app.url" target="_blank" class="flex items-center gap-1.5 text-xs text-blue-600 hover:underline font-medium">
-                                                    <span x-html="icons.externalLink" class="w-3 h-3"></span> 開啟官網
-                                                </a>
-                                                <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
-                                                    <input type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"> 已確認
-                                                </label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div x-show="substanceApps.length > 0" class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-slate-200 bg-indigo-50 px-6 py-4 font-bold text-indigo-700">
-                        <span x-html="icons.boxes" class="w-5 h-5"></span> 教育版專屬權益 (不包含 Substance 3D Assets)
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-slate-600">
-                            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                                <tr>
-                                    <th class="px-6 py-3 min-w-[250px]">軟體名稱 / 版本</th>
-                                    <th class="px-6 py-3 min-w-[150px]">Windows</th>
-                                    <th class="px-6 py-3 min-w-[150px]">macOS</th>
-                                    <th class="px-6 py-3 min-w-[200px]">硬體建議</th>
-                                    <th x-show="isAuditMode" class="px-6 py-3 bg-amber-50 border-l border-amber-100">溯源</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <template x-for="app in substanceApps" :key="app.id">
-                                    <tr class="group hover:bg-slate-50 transition-colors">
-                                        <td class="px-6 py-4 align-top">
-                                            <button @click="openModal(app)" class="flex items-center gap-3 text-left w-full group-hover:translate-x-1 transition-transform">
-                                                <div class="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600"><span x-html="app.iconHtml" class="w-5 h-5"></span></div>
-                                                <div><div class="font-bold text-slate-900" x-text="app.name"></div><div class="text-xs text-slate-400" x-text="app.version"></div></div>
-                                            </button>
-                                        </td>
-                                        <td class="px-6 py-4 align-top" x-text="app.min_os_win"></td>
-                                        <td class="px-6 py-4 align-top" :class="app.min_os_mac.includes('不支援') ? 'text-red-500' : ''" x-text="app.min_os_mac"></td>
-                                        <td class="px-6 py-4 align-top"><div class="flex justify-between gap-2"><span class="text-slate-400 text-xs">GPU</span><span class="font-medium" x-text="app.rec_gpu"></span></div></td>
-                                        <td x-show="isAuditMode" class="px-6 py-4 align-middle bg-amber-50/30 border-l border-amber-100"><a :href="app.url" target="_blank" class="text-xs text-blue-600 flex gap-1"><span x-html="icons.externalLink" class="w-3 h-3"></span>官網</a></td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div x-show="eolApps.length > 0" class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-6 py-4 font-bold text-slate-600">
-                        <span x-html="icons.alertOctagon" class="w-5 h-5"></span> 特殊狀態軟體 (EOL / Free)
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-slate-600">
-                            <tbody class="divide-y divide-slate-100">
-                                <template x-for="app in eolApps" :key="app.id">
-                                    <tr class="group hover:bg-slate-50 transition-colors opacity-75 bg-slate-50">
-                                        <td class="px-6 py-4 align-top w-full">
-                                            <button @click="openModal(app)" class="flex items-center gap-3 text-left w-full group-hover:translate-x-1 transition-transform">
-                                                <div class="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600"><span x-html="app.iconHtml" class="w-5 h-5"></span></div>
-                                                <div>
-                                                    <div class="font-bold text-slate-900 flex items-center gap-2">
-                                                        <span x-text="app.name"></span>
-                                                        <span class="px-1.5 py-0.5 bg-slate-200 text-slate-600 text-[9px] rounded uppercase">不列入規格</span>
-                                                    </div>
-                                                    <div class="mt-1 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded w-fit bg-red-50 text-red-600">
-                                                        <span x-html="icons.xCircle" class="w-2.5 h-2.5"></span>
-                                                        <span x-text="app.alert"></span>
-                                                    </div>
-                                                </div>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <template x-if="cloudApps.length > 0">
-                    <div class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-6 py-4 font-bold text-purple-700">
-                            <span x-html="icons.smartphone" class="w-5 h-5"></span> 行動裝置應用程式與網頁服務
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-slate-600">
-                                <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                                    <tr>
-                                        <th class="px-6 py-3">服務名稱</th>
-                                        <th class="px-6 py-3">支援平台</th>
-                                        <th x-show="isAuditMode" class="px-6 py-3 bg-amber-50 border-l border-amber-100">查證</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <template x-for="app in cloudApps" :key="app.id">
-                                        <tr class="group hover:bg-slate-50 transition-colors">
-                                            <td class="px-6 py-4 align-top">
-                                                <button @click="openModal(app)" class="flex items-center gap-3 text-left w-full group-hover:translate-x-1 transition-transform">
-                                                    <div class="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600"><span x-html="app.iconHtml" class="w-5 h-5"></span></div>
-                                                    <div class="font-bold text-slate-900" x-text="app.name"></div>
-                                                </button>
-                                            </td>
-                                            <td class="px-6 py-4 align-top">
-                                                <div class="flex gap-1 flex-wrap">
-                                                    <template x-if="app.has_web"><span class="text-[10px] font-bold bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded border border-sky-200">Web</span></template>
-                                                    <template x-if="app.has_ios"><span class="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded border border-indigo-200">iOS</span></template>
-                                                    <template x-if="app.has_android"><span class="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded border border-green-200">Android</span></template>
-                                                </div>
-                                            </td>
-                                            <td x-show="isAuditMode" class="px-6 py-4 align-middle bg-amber-50/30 border-l border-amber-100"><a :href="app.url" target="_blank" class="text-xs text-blue-600 hover:underline"><span x-html="icons.externalLink" class="w-3 h-3 inline"></span> 官網</a></td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </template>
-
-                <div x-show="activeLic.type === 'restricted'" class="bg-slate-100 border border-slate-200 rounded-xl p-8 text-center text-slate-500">
-                    <span x-html="icons.cloudOff" class="w-8 h-8 mx-auto mb-2 text-slate-400 block"></span>
-                    <h4 class="font-bold text-slate-700">行動裝置與雲端服務區塊已隱藏</h4>
-                    <p class="text-sm mt-1">依據您選擇的 <strong x-text="activeLic.short"></strong> 規範，不包含 Photoshop for iPad、Firefly Web 等服務。<br/>此區塊已自動從投標規格書中移除。</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="selectedApp" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" @click="selectedApp = null"></div>
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative border border-slate-100 transform transition-all animate-fade-in z-50">
-            <button @click="selectedApp = null" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <span x-html="icons.x" class="w-5 h-5"></span>
+        <div class="main-controls">
+          <div class="tender-toggle" id="tender-toggle">
+            <button class="tender-btn" data-level="flagship">
+              <svg><use href="#icon-clapperboard"></use></svg>
+              <span>全套旗艦</span>
             </button>
-            <template x-if="selectedApp">
-                <div class="flex flex-col items-center text-center">
-                    <div class="p-4 rounded-2xl mb-4" 
-                         :class="selectedApp.category === 'desktop' ? 'bg-blue-50 text-blue-600' : selectedApp.category === 'mobile' ? 'bg-purple-50 text-purple-600' : selectedApp.category === 'substance' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-500'">
-                        <span x-html="selectedApp.iconHtml" class="w-12 h-12 block transform scale-150"></span>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-1" x-text="selectedApp.name"></h3>
-                    <p class="text-sm text-slate-500 font-medium mb-4"><span x-text="selectedApp.category.toUpperCase()"></span> • <span x-text="selectedApp.version"></span></p>
-                    <div class="bg-slate-50 rounded-xl p-4 text-sm text-slate-600 leading-relaxed w-full text-left border border-slate-100" x-text="selectedApp.intro || selectedApp.desc"></div>
-                    <a :href="selectedApp.url" target="_blank" class="mt-6 flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all">
-                        前往官方規格頁 <span x-html="icons.externalLink" class="w-4 h-4"></span>
-                    </a>
-                </div>
-            </template>
+            <button class="tender-btn" data-level="essential">
+              <svg><use href="#icon-pen-tool"></use></svg>
+              <span>基礎平面</span>
+            </button>
+            <button class="tender-btn" data-level="substance">
+              <svg><use href="#icon-box"></use></svg>
+              <span>Substance 專用</span>
+            </button>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn" id="audit-toggle">
+              <svg><use href="#icon-clipboard-check"></use></svg>
+              <span class="audit-text">資料稽核</span>
+            </button>
+            <button class="btn btn-primary" id="copy-btn">
+              <svg><use href="#icon-copy"></use></svg>
+              <span>複製當下規格</span>
+            </button>
+            <button class="btn" id="download-btn" title="下載規格文字檔">
+              <svg><use href="#icon-download"></use></svg>
+            </button>
+          </div>
         </div>
+      </section>
+
+      <section id="summary-banner"></section>
+
+      <section class="tables-wrap" id="tables"></section>
+
+      <section id="restricted-note-wrap"></section>
     </div>
+  </main>
 
-    <script>
-        // --- 1. SVG Icons (Lucide) - Native SVG Strings for performance and no dependencies ---
-        // 使用函式返回 SVG 字串，方便在 Alpine 中透過 x-html 綁定
-        const createSvg = (content) => `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${content}</svg>`;
-        
-        const icons = {
-            monitor: createSvg('<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>'),
-            cpu: createSvg('<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>'),
-            hardDrive: createSvg('<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>'),
-            layers: createSvg('<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>'),
-            video: createSvg('<path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/>'),
-            image: createSvg('<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>'),
-            fileText: createSvg('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'),
-            checkCircle: createSvg('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'),
-            copy: createSvg('<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'),
-            alertTriangle: createSvg('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/>'),
-            penTool: createSvg('<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/>'),
-            grid: createSvg('<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/><line x1="9" x2="9" y1="3" y2="21"/><line x1="15" x2="15" y1="3" y2="21"/>'),
-            school: createSvg('<path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/>'),
-            building: createSvg('<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M16 18h.01"/>'),
-            shieldAlert: createSvg('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/>'),
-            users: createSvg('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'),
-            user: createSvg('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
-            clapperboard: createSvg('<path d="M20.2 6 3 11l-.9-2.4c-.5-1.1.2-2.3 1.3-2.8l3.2-1.4c1.1-.5 2.3.2 2.8 1.3L10.3 8"/><path d="M6.2 12.8 3.2 5"/><path d="m4.3 8.3 1.9-.8"/><rect width="18" height="14" x="4" y="8" rx="2" ry="2"/>'),
-            code: createSvg('<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'),
-            brush: createSvg('<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2.5 1.52S4.1 21 5.4 21c1.67 0 3.03-1.35 3.03-3.02 0-1.32 2.5-1.52 2.5-1.52S8.34 14.94 7.07 14.94Z"/><path d="M14 11c.88 0 1.59.5 2.19 1.11L13 15.31"/>'),
-            mic: createSvg('<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>'),
-            cloudOff: createSvg('<path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10c-.707 0-1.378.126-2 .353"/><path d="M15.26 15.26A5 5 0 0 1 10.5 16H9a4.948 4.948 0 0 1-3.225-1.225"/>'),
-            cloud: createSvg('<path d="M17.5 19c0-1.7-1.3-3-3-3h-1.5c-2.8 0-5-2.2-5-5s2.2-5 5-5c1.8 0 3.4 1 4.2 2.5 1 .2 1.8 1 1.8 2 0 .3 0 .7-.1 1"/><path d="M6 16.6c-2.3-.3-4-2.2-4-4.6 0-2.5 2-4.5 4.5-4.5.6 0 1.1.1 1.6.3"/>'),
-            sparkles: createSvg('<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/>'),
-            layout: createSvg('<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="9" y2="21"/>'),
-            globe: createSvg('<circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>'),
-            tablet: createSvg('<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/>'),
-            externalLink: createSvg('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>'),
-            zap: createSvg('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
-            settings: createSvg('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
-            type: createSvg('<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>'),
-            clipboardCheck: createSvg('<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'),
-            eye: createSvg('<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'),
-            calendarClock: createSvg('<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><circle cx="17.5" cy="17.5" r="3.5"/><path d="M19.5 19.5 17.5 17.5V15"/>'),
-            boxes: createSvg('<path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5 3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.39a2 2 0 0 0 1.07 1.75L12 14.5l3.93-2.23a2 2 0 0 0 1.07-1.75V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="m12 8-5-3"/><path d="m12 8 5-3"/><path d="M12 8v6.5"/><path d="m12 11 5-3"/>'),
-            alertOctagon: createSvg('<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>'),
-            xCircle: createSvg('<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>'),
-            box: createSvg('<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/>'),
-            camera: createSvg('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
-            download: createSvg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>'),
-            smartphone: createSvg('<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>'),
-            palette: createSvg('<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>'),
-            x: createSvg('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
-            menu: createSvg('<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>')
-        };
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">
+        <svg><use href="#icon-x"></use></svg>
+      </button>
+      <div id="modal-icon" class="modal-icon desktop">
+        <svg><use href="#icon-image"></use></svg>
+      </div>
+      <h3 id="modal-title" class="modal-title"></h3>
+      <div id="modal-subtitle" class="modal-subtitle"></div>
+      <div id="modal-body" class="modal-body"></div>
+      <button id="modal-link" class="modal-link-btn">
+        <span>前往官方規格頁</span>
+        <svg><use href="#icon-external-link"></use></svg>
+      </button>
+    </div>
+  </div>
+</div>
 
-        // --- 2. Data Source (Apps & Licenses) ---
-        // 為了讓代碼更整潔，這裡將原本的 AppSpec 資料轉為純 JS 物件
-        const appsData = [
-            { id: 'ps', name: 'Photoshop', category: 'desktop', iconHtml: icons.image, version: '2026 (v27)', desc: '影像編輯', intro: '全球標準的影像合成與編輯軟體，支援 AI 生成填色與進階修圖功能。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 60, is_heavy: false, is_video: false, alert: '建議 macOS 14 最佳', url: 'https://helpx.adobe.com/tw/photoshop/system-requirements.html' },
-            { id: 'ai', name: 'Illustrator', category: 'desktop', iconHtml: icons.penTool, version: '2026 (v30)', desc: '向量繪圖', intro: '向量圖形設計標準工具，適用於標誌、圖示、插畫與包裝設計。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 50, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/illustrator/system-requirements.html' },
-            { id: 'id', name: 'InDesign', category: 'desktop', iconHtml: icons.fileText, version: '2026 (v21)', desc: '排版設計', intro: '專業版面設計與排版軟體，適用於雜誌、書籍、數位出版與互動文件。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/indesign/system-requirements.html' },
-            { id: 'ic', name: 'InCopy', category: 'desktop', iconHtml: icons.type, version: '2026 (v21)', desc: '文稿編輯', intro: '與 InDesign 協作的文稿撰寫工具，讓編輯與設計師能同時處理同一份文件。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 30, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/incopy/system-requirements.html' },
-            { id: 'ac', name: 'Acrobat Pro', category: 'desktop', iconHtml: icons.fileText, version: 'DC (Continuous)', desc: 'PDF文件', intro: '最完整的 PDF 解決方案，支援建立、編輯、簽署與保護 PDF 文件。', min_os_win: 'Win 10 (1809)', min_os_mac: 'macOS 12', rec_ram: '8GB', rec_gpu: '選用', level: 10, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/acrobat/system-requirements.html' },
-            { id: 'lrc', name: 'Lightroom Classic', category: 'desktop', iconHtml: icons.image, version: '2026 (v15)', desc: '相片管理', intro: '專為攝影師設計的桌面端相片管理與修圖軟體，提供強大的批次處理功能。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB+', rec_gpu: '8GB VRAM', level: 60, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/lightroom-classic/system-requirements.html' },
-            { id: 'lr', name: 'Adobe Lightroom', category: 'desktop', iconHtml: icons.cloud, version: '2026', desc: '雲端相片服務', intro: '基於雲端的相片服務，隨時隨地編輯、整理、儲存與分享相片。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '8GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: false, is_video: false, sdl_excluded: true, url: 'https://helpx.adobe.com/tw/lightroom-cc/system-requirements.html' },
-            { id: 'pr', name: 'Premiere Pro', category: 'desktop', iconHtml: icons.video, version: '2026 (v26)', desc: '影片剪輯', intro: '業界標準的專業影片剪輯軟體，支援從 8K 到虛擬實境的各種格式。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '32GB (4K)', rec_gpu: '6GB+ VRAM', level: 85, is_heavy: true, is_video: true, alert: '介面僅支援簡體中文 / CPU需支援 AVX2', url: 'https://helpx.adobe.com/cn/premiere-pro/system-requirements.html' },
-            { id: 'ae', name: 'After Effects', category: 'desktop', iconHtml: icons.layers, version: '2026 (v26)', desc: '特效合成', intro: '電影級視覺特效與動態圖形合成軟體，廣泛用於電影、電視與網頁影片。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '32GB / 64GB', rec_gpu: '8GB+ VRAM', level: 100, is_heavy: true, is_video: true, alert: '介面僅支援簡體中文 / 4K建議 64GB RAM', url: 'https://helpx.adobe.com/cn/after-effects/system-requirements.html' },
-            { id: 'au', name: 'Audition', category: 'desktop', iconHtml: icons.mic, version: '2026 (v26)', desc: '音訊編輯', intro: '專業音訊工作站，提供混音、修復與精準編輯功能，還原純淨音質。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: true, is_video: true, alert: '介面僅支援簡體中文', url: 'https://helpx.adobe.com/cn/audition/system-requirements.html' },
-            { id: 'me', name: 'Media Encoder', category: 'desktop', iconHtml: icons.settings, version: '2026 (v26)', desc: '影音轉檔', intro: '全能影音轉檔工具，支援幾乎所有格式，可背景執行算圖任務。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true, is_video: true, url: 'https://helpx.adobe.com/tw/media-encoder/system-requirements.html' },
-            { id: 'ch', name: 'Character Animator', category: 'desktop', iconHtml: icons.users, version: '2026 (v26)', desc: '動畫捕捉', intro: '利用網路攝影機即時捕捉表情動作，讓 2D 角色瞬間活起來的動畫工具。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 50, is_heavy: true, is_video: true, url: 'https://helpx.adobe.com/tw/character-animator/system-requirements.html' },
-            { id: 'an', name: 'Animate', category: 'desktop', iconHtml: icons.clapperboard, version: '2026 (v26)', desc: '2D動畫', intro: '互動式向量動畫設計工具（前身為 Flash），適用於遊戲、應用程式與網頁。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true, is_video: false, alert: 'Mac 版不支援中文介面', url: 'https://helpx.adobe.com/tw/animate/system-requirements.html' },
-            { id: 'dw', name: 'Dreamweaver', category: 'desktop', iconHtml: icons.code, version: '2021 (v21)', desc: '網頁設計', intro: '支援 HTML/CSS/JS 的視覺化網頁設計與程式碼編輯工具。', min_os_win: 'Win 10 (1903)', min_os_mac: 'macOS 11', rec_ram: '4GB', rec_gpu: '1GB VRAM', level: 20, is_heavy: false, is_video: false, alert: 'Mac 版不支援中文介面', url: 'https://helpx.adobe.com/tw/dreamweaver/system-requirements.html' },
-            { id: 'br', name: 'Bridge', category: 'desktop', iconHtml: icons.boxes, version: '2026 (v16)', desc: '資產管理', intro: '強大的創意資產管理員，可預覽、整理、編輯與發佈多種創意檔案。', min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 20, is_heavy: false, is_video: false, url: 'https://helpx.adobe.com/tw/bridge/system-requirements.html' },
-            
-            // Substance
-            { id: 'sub_pt', name: 'Substance 3D Painter', category: 'substance', iconHtml: icons.box, version: '2026', desc: '3D 材質繪製', intro: '3D 界的 Photoshop，可直接在 3D 模型上繪製材質與紋理。', min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12', rec_ram: '32GB', rec_gpu: '8GB+ VRAM', level: 90, is_heavy: true, is_video: false, frl_excluded: true, url: 'https://helpx.adobe.com/substance-3d-painter/getting-started/system-requirements.html' },
-            { id: 'sub_ds', name: 'Substance 3D Designer', category: 'substance', iconHtml: icons.grid, version: '2026', desc: '3D 材質設計', intro: '基於節點的材質創作工具，可從無到有設計出無限變化的 3D 材質。', min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12', rec_ram: '32GB', rec_gpu: '8GB+ VRAM', level: 85, is_heavy: true, is_video: false, frl_excluded: true, url: 'https://helpx.adobe.com/substance-3d-designer/home.html' },
-            { id: 'sub_sg', name: 'Substance 3D Stager', category: 'substance', iconHtml: icons.image, version: '2026', desc: '3D 場景佈置', intro: '直覺的 3D 場景佈置與算圖工具，用於建立高品質的虛擬攝影棚照。', min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12', rec_ram: '32GB', rec_gpu: '8GB+ VRAM (RTX)', level: 95, is_heavy: true, is_video: false, frl_excluded: true, url: 'https://helpx.adobe.com/substance-3d-stager/getting-started/system-requirements.html' },
-            { id: 'sub_sp', name: 'Substance 3D Sampler', category: 'substance', iconHtml: icons.camera, version: '2026', desc: '材質取樣', intro: '利用 AI 技術將實物照片快速轉換為高品質 3D 材質與環境光。', min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12', rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 70, is_heavy: true, is_video: false, frl_excluded: true, url: 'https://helpx.adobe.com/substance-3d-sampler/getting-started/system-requirements.html' },
-            { id: 'sub_md', name: 'Substance 3D Modeler', category: 'substance', iconHtml: icons.box, version: '2026', desc: 'VR/桌面建模', intro: '結合 VR 與桌面的直覺式 3D 建模工具，如同捏黏土般自由創作。', min_os_win: 'Win 10 22H2', min_os_mac: '不支援 (僅Win)', rec_ram: '32GB', rec_gpu: '8GB VRAM', level: 90, is_heavy: true, is_video: false, frl_excluded: true, alert: '僅支援 Windows (Desktop/VR)', url: 'https://helpx.adobe.com/substance-3d-modeler/getting-started/system-requirements.html' },
+<script>
+  // ====== Data ======
+  const adobeApps = [
+    // Desktop
+    {
+      id: 'ps', name: 'Photoshop', category: 'desktop', icon: 'image', version: '2026 (v27)', desc: '影像編輯',
+      intro: '全球標準的影像合成與編輯軟體，支援 AI 生成填色與進階修圖功能。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 60, is_heavy: false, is_video: false,
+      alert: '建議 macOS 14 最佳',
+      url: 'https://helpx.adobe.com/tw/photoshop/system-requirements.html'
+    },
+    {
+      id: 'ai', name: 'Illustrator', category: 'desktop', icon: 'pen-tool', version: '2026 (v30)', desc: '向量繪圖',
+      intro: '向量圖形設計標準工具，適用於標誌、圖示、插畫與包裝設計。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 50, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/illustrator/system-requirements.html'
+    },
+    {
+      id: 'id', name: 'InDesign', category: 'desktop', icon: 'file-text', version: '2026 (v21)', desc: '排版設計',
+      intro: '專業版面設計與排版軟體，適用於雜誌、書籍、數位出版與互動文件。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/indesign/system-requirements.html'
+    },
+    {
+      id: 'ic', name: 'InCopy', category: 'desktop', icon: 'type', version: '2026 (v21)', desc: '文稿編輯',
+      intro: '與 InDesign 協作的文稿撰寫工具，讓編輯與設計師能同時處理同一份文件。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 30, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/incopy/system-requirements.html'
+    },
+    {
+      id: 'ac', name: 'Acrobat Pro', category: 'desktop', icon: 'file-text', version: 'DC (Continuous)', desc: 'PDF文件',
+      intro: '最完整的 PDF 解決方案，支援建立、編輯、簽署與保護 PDF 文件。',
+      min_os_win: 'Win 10 (1809)', min_os_mac: 'macOS 12',
+      rec_ram: '8GB', rec_gpu: '選用', level: 10, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/acrobat/system-requirements.html'
+    },
+    {
+      id: 'lrc', name: 'Lightroom Classic', category: 'desktop', icon: 'image', version: '2026 (v15)', desc: '相片管理',
+      intro: '專為攝影師設計的桌面端相片管理與修圖軟體，提供強大的批次處理功能。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB+', rec_gpu: '8GB VRAM', level: 60, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/lightroom-classic/system-requirements.html'
+    },
+    {
+      id: 'pr', name: 'Premiere Pro', category: 'desktop', icon: 'video', version: '2026 (v26)', desc: '影片剪輯',
+      intro: '業界標準的專業影片剪輯軟體，支援從 8K 到虛擬實境的各種格式。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '32GB (4K)', rec_gpu: '6GB+ VRAM', level: 85, is_heavy: true, is_video: true,
+      alert: '介面僅支援簡體中文 / CPU需支援 AVX2',
+      url: 'https://helpx.adobe.com/cn/premiere-pro/system-requirements.html'
+    },
+    {
+      id: 'ae', name: 'After Effects', category: 'desktop', icon: 'layers', version: '2026 (v26)', desc: '特效合成',
+      intro: '電影級視覺特效與動態圖形合成軟體，廣泛用於電影、電視與網頁影片。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '32GB / 64GB', rec_gpu: '8GB+ VRAM', level: 100, is_heavy: true, is_video: true,
+      alert: '介面僅支援簡體中文 / 4K建議 64GB RAM',
+      url: 'https://helpx.adobe.com/cn/after-effects/system-requirements.html'
+    },
+    {
+      id: 'au', name: 'Audition', category: 'desktop', icon: 'mic', version: '2026 (v26)', desc: '音訊編輯',
+      intro: '專業音訊工作站，提供混音、修復與精準編輯功能，還原純淨音質。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: true, is_video: true,
+      alert: '介面僅支援簡體中文',
+      url: 'https://helpx.adobe.com/cn/audition/system-requirements.html'
+    },
+    {
+      id: 'me', name: 'Media Encoder', category: 'desktop', icon: 'settings', version: '2026 (v26)', desc: '影音轉檔',
+      intro: '全能影音轉檔工具，支援幾乎所有格式，可背景執行算圖任務。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true, is_video: true,
+      url: 'https://helpx.adobe.com/tw/media-encoder/system-requirements.html'
+    },
+    {
+      id: 'ch', name: 'Character Animator', category: 'desktop', icon: 'users', version: '2026 (v26)', desc: '動畫捕捉',
+      intro: '利用網路攝影機即時捕捉表情動作，讓 2D 角色瞬間活起來的動畫工具。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 50, is_heavy: true, is_video: true,
+      url: 'https://helpx.adobe.com/tw/character-animator/system-requirements.html'
+    },
+    {
+      id: 'an', name: 'Animate', category: 'desktop', icon: 'clapperboard', version: '2026 (v26)', desc: '2D動畫',
+      intro: '互動式向量動畫設計工具（前身為 Flash），適用於遊戲、應用程式與網頁。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true, is_video: false,
+      alert: 'Mac 版不支援中文介面',
+      url: 'https://helpx.adobe.com/tw/animate/system-requirements.html'
+    },
+    {
+      id: 'dw', name: 'Dreamweaver', category: 'desktop', icon: 'code', version: '2021 (v21)', desc: '網頁設計',
+      intro: '支援 HTML/CSS/JS 的視覺化網頁設計與程式碼編輯工具。',
+      min_os_win: 'Win 10 (1903)', min_os_mac: 'macOS 11',
+      rec_ram: '4GB', rec_gpu: '1GB VRAM', level: 20, is_heavy: false, is_video: false,
+      alert: 'Mac 版不支援中文介面',
+      url: 'https://helpx.adobe.com/tw/dreamweaver/system-requirements.html'
+    },
+    {
+      id: 'br', name: 'Bridge', category: 'desktop', icon: 'boxes', version: '2026 (v16)', desc: '資產管理',
+      intro: '強大的創意資產管理員，可預覽、整理、編輯與發佈多種創意檔案。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 20, is_heavy: false, is_video: false,
+      url: 'https://helpx.adobe.com/tw/bridge/system-requirements.html'
+    },
+    {
+      id: 'lr', name: 'Adobe Lightroom', category: 'desktop', icon: 'cloud', version: '2026', desc: '雲端相片服務',
+      intro: '基於雲端的相片服務，隨時隨地編輯、整理、儲存與分享相片。',
+      min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+      rec_ram: '8GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: false, is_video: false,
+      sdl_excluded: true,
+      url: 'https://helpx.adobe.com/tw/lightroom-cc/system-requirements.html'
+    },
 
-            // EOL
-            { id: 'ru', name: 'Premiere Rush', category: 'eol', iconHtml: icons.video, version: '2026/9 終止服務', desc: '跨裝置剪輯', intro: '跨裝置輕量剪輯軟體 (將於 2026 年 9 月終止服務)。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false, alert: '2026年9月停止服務', sdl_excluded: true, url: 'https://helpx.adobe.com/tw/premiere-rush/system-requirements.html', is_eol: true },
-            { id: 'xd', name: 'Adobe XD', category: 'eol', iconHtml: icons.layout, version: '維護模式', desc: 'UI/UX 設計', intro: 'UI/UX 設計與原型製作工具 (目前處於維護模式，不再新增功能)。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false, alert: '維護模式 (不再更新)', sdl_excluded: true, url: 'https://helpx.adobe.com/tw/xd/system-requirements.html', is_eol: true },
-            { id: 'fresco', name: 'Adobe Fresco', category: 'eol', iconHtml: icons.brush, version: '免費軟體', desc: '數位繪圖', intro: '專為觸控與手寫筆設計的數位繪圖軟體 (現已全面免費)。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false, alert: '免費軟體 (不列入規格)', url: 'https://helpx.adobe.com/tw/fresco/system-requirements.html', is_eol: true },
-            { id: 'dn', name: 'Adobe Dimension', category: 'eol', iconHtml: icons.box, version: '維護模式', desc: '3D 產品合成', intro: '簡易 3D 合成工具 (因應 Substance 推出，後續不會再更新)。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false, alert: '維護模式 (不再更新)', is_eol: true, url: 'https://helpx.adobe.com/tw/dimension/system-requirements.html' },
+    // Substance 3D
+    {
+      id: 'sub_pt', name: 'Substance 3D Painter', category: 'substance', icon: 'box', version: '2026', desc: '3D 材質繪製',
+      intro: '3D 界的 Photoshop，可直接在 3D 模型上繪製材質與紋理。',
+      min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12',
+      rec_ram: '32GB', rec_gpu: '8GB+ VRAM', level: 90, is_heavy: true, is_video: false, frl_excluded: true,
+      url: 'https://helpx.adobe.com/substance-3d-painter/getting-started/system-requirements.html'
+    },
+    {
+      id: 'sub_ds', name: 'Substance 3D Designer', category: 'substance', icon: 'grid', version: '2026', desc: '3D 材質設計',
+      intro: '基於節點的材質創作工具，可從無到有設計出無限變化的 3D 材質。',
+      min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12',
+      rec_ram: '32GB', rec_gpu: '8GB+ VRAM', level: 85, is_heavy: true, is_video: false, frl_excluded: true,
+      url: 'https://helpx.adobe.com/substance-3d-designer/home.html'
+    },
+    {
+      id: 'sub_sg', name: 'Substance 3D Stager', category: 'substance', icon: 'image', version: '2026', desc: '3D 場景佈置',
+      intro: '直覺的 3D 場景佈置與算圖工具，用於建立高品質的虛擬攝影棚照。',
+      min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12',
+      rec_ram: '32GB', rec_gpu: '8GB+ VRAM (RTX)', level: 95, is_heavy: true, is_video: false, frl_excluded: true,
+      url: 'https://helpx.adobe.com/substance-3d-stager/getting-started/system-requirements.html'
+    },
+    {
+      id: 'sub_sp', name: 'Substance 3D Sampler', category: 'substance', icon: 'camera', version: '2026', desc: '材質取樣',
+      intro: '利用 AI 技術將實物照片快速轉換為高品質 3D 材質與環境光。',
+      min_os_win: 'Win 10 22H2', min_os_mac: 'macOS 12',
+      rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 70, is_heavy: true, is_video: false, frl_excluded: true,
+      url: 'https://helpx.adobe.com/substance-3d-sampler/getting-started/system-requirements.html'
+    },
+    {
+      id: 'sub_md', name: 'Substance 3D Modeler', category: 'substance', icon: 'box', version: '2026', desc: 'VR/桌面建模',
+      intro: '結合 VR 與桌面的直覺式 3D 建模工具，如同捏黏土般自由創作。',
+      min_os_win: 'Win 10 22H2', min_os_mac: '不支援 (僅Win)',
+      rec_ram: '32GB', rec_gpu: '8GB VRAM', level: 90, is_heavy: true, is_video: false, frl_excluded: true,
+      alert: '僅支援 Windows (Desktop/VR)',
+      url: 'https://helpx.adobe.com/substance-3d-modeler/getting-started/system-requirements.html'
+    },
 
-            // Cloud/Mobile
-            { id: 'firefly', name: 'Adobe Firefly', category: 'cloud', iconHtml: icons.sparkles, version: 'AI 引擎', desc: '生成式 AI', intro: 'Adobe 的生成式 AI 引擎，可透過文字指令生成高品質影像與文字特效。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false, has_web: true, has_ios: true, has_android: true, url: 'https://firefly.adobe.com/' },
-            { id: 'pr_mob', name: 'Adobe Premiere App', category: 'cloud', iconHtml: icons.video, version: 'Mobile', desc: '行動剪輯', intro: 'Premiere Pro 的行動版延伸，提供手機上的專業剪輯功能。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false, has_ios: true, has_android: true, url: 'https://www.adobe.com/tw/products/premiere-rush.html' },
-            { id: 'express', name: 'Adobe Express', category: 'cloud', iconHtml: icons.layout, version: 'All-in-One', desc: '快速設計', intro: '全能線上設計工具，整合海報製作、影片剪輯與 PDF 編輯功能。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false, has_web: true, has_ios: true, has_android: true, url: 'https://www.adobe.com/tw/express/' },
-            { id: 'capture', name: 'Adobe Capture', category: 'cloud', iconHtml: icons.camera, version: 'Mobile', desc: '素材擷取', intro: '將手機相機變成向量轉換器，隨時擷取色彩、圖案與字型素材。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_ios: true, has_android: true, url: 'https://www.adobe.com/tw/products/capture.html' },
-            { id: 'lr_mob', name: 'Adobe Lightroom (Mobile)', category: 'cloud', iconHtml: icons.image, version: 'Multi-Platform', desc: '行動修圖', intro: '強大的雲端相片服務，支援跨裝置編輯、整理與分享高解析度照片。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false, has_web: true, has_ios: true, has_android: true, url: 'https://www.adobe.com/tw/products/photoshop-lightroom.html' },
-            { id: 'ac_mob', name: 'Adobe Acrobat Reader (Mobile)', category: 'cloud', iconHtml: icons.fileText, version: 'Multi-Platform', desc: 'PDF 閱讀', intro: '全球標準的 PDF 檢視器，支援在行動裝置上檢視、簽署與註解 PDF。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_web: true, has_ios: true, has_android: true, url: 'https://acrobat.adobe.com/tw/zh-Hant/mobile/acrobat-reader.html' },
-            { id: 'behance', name: 'Behance', category: 'cloud', iconHtml: icons.globe, version: 'Service', desc: '創意社群', intro: '全球最大的創意作品展示平台，可建立個人作品集並發掘靈感。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_web: true, has_ios: true, has_android: true, url: 'https://www.behance.net/' },
-            { id: 'font', name: 'Adobe Fonts', category: 'cloud', iconHtml: icons.type, version: 'Service', desc: '雲端字型', intro: '提供數千種高品質字型，可一鍵同步至所有 Creative Cloud 應用程式。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_web: true, url: 'https://fonts.adobe.com/' },
-            { id: 'color', name: 'Adobe Color', category: 'cloud', iconHtml: icons.palette, version: 'Service', desc: '配色工具', intro: '專業配色方案產生器，可從圖片擷取色彩或探索社群創作的色票。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_web: true, url: 'https://color.adobe.com/' },
-            { id: 'port', name: 'Adobe Portfolio', category: 'cloud', iconHtml: icons.globe, version: 'Service', desc: '作品集網站', intro: '快速建立個人作品集網站的工具，直接連動 Behance 與 Lightroom。', min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false, has_web: true, url: 'https://portfolio.adobe.com/' }
-        ];
+    // EOL / Free
+    {
+      id: 'ru', name: 'Premiere Rush', category: 'eol', icon: 'video', version: '2026/9 終止服務', desc: '跨裝置剪輯',
+      intro: '跨裝置輕量剪輯軟體 (將於 2026 年 9 月終止服務)。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false,
+      alert: '2026年9月停止服務',
+      sdl_excluded: true,
+      url: 'https://helpx.adobe.com/tw/premiere-rush/system-requirements.html',
+      is_eol: true
+    },
+    {
+      id: 'xd', name: 'Adobe XD', category: 'eol', icon: 'layout', version: '維護模式', desc: 'UI/UX 設計',
+      intro: 'UI/UX 設計與原型製作工具 (目前處於維護模式，不再新增功能)。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false,
+      alert: '維護模式 (不再更新)',
+      sdl_excluded: true,
+      url: 'https://helpx.adobe.com/tw/xd/system-requirements.html',
+      is_eol: true
+    },
+    {
+      id: 'fresco', name: 'Adobe Fresco', category: 'eol', icon: 'brush', version: '免費軟體', desc: '數位繪圖',
+      intro: '專為觸控與手寫筆設計的數位繪圖軟體 (現已全面免費)。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false,
+      alert: '免費軟體 (不列入規格)',
+      url: 'https://helpx.adobe.com/tw/fresco/system-requirements.html',
+      is_eol: true
+    },
+    {
+      id: 'dn', name: 'Adobe Dimension', category: 'eol', icon: 'box', version: '維護模式', desc: '3D 產品合成',
+      intro: '簡易 3D 合成工具 (因應 Substance 推出，後續不會再更新)。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 0, is_heavy: false, is_video: false,
+      alert: '維護模式 (不再更新)',
+      url: 'https://helpx.adobe.com/tw/dimension/system-requirements.html',
+      is_eol: true
+    },
 
-        const licensesData = [
-            { id: 'commercial', name: '指名授權-商業', short: '商業指名', color: 'blue', iconHtml: icons.building, summaryFlagship: { cpu: 'i7/i9 (14th)', ram: '64 GB', gpu: 'RTX 4070', os: 'Win 11 / Mac 14' }, summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 11 / Mac 13' }, type: 'full', isEdu: false, group: 'comm_gov' },
-            { id: 'gov_frl', name: '離線授權-政府FRL', short: '政府 FRL', color: 'rose', iconHtml: icons.shieldAlert, summaryFlagship: { cpu: 'Xeon W', ram: '64 GB+', gpu: 'RTX 4080', os: 'Win 11 (離線)' }, summaryEssential: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 11 (離線)' }, type: 'restricted', isEdu: false, group: 'comm_gov' },
-            { id: 'edu_named', name: '指名授權-教育大專院校', short: '大專指名', color: 'indigo', iconHtml: icons.user, summaryFlagship: { cpu: 'i7 (13th)', ram: '32 GB', gpu: 'RTX 4060', os: 'Win 11 / Mac 14' }, summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: '內顯/入門獨顯', os: 'Win 11 / Mac 13' }, summarySubstance: { cpu: 'i7/i9', ram: '32 GB', gpu: 'RTX 3060+', os: 'Win 11 / Mac 14' }, type: 'full', isEdu: true, group: 'edu' },
-            { id: 'k12_named', name: '指名授權-教育K12', short: 'K12 指名', color: 'emerald', iconHtml: icons.user, summaryFlagship: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' }, summaryEssential: { cpu: 'i5 (12th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' }, summarySubstance: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 14' }, type: 'full', isEdu: true, group: 'edu' },
-            { id: 'edu_device', name: '裝置授權-教育大專院校 SDL', short: '大專 SDL', color: 'purple', iconHtml: icons.school, summaryFlagship: { cpu: 'i7 (12th)', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 13' }, summaryEssential: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' }, summarySubstance: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060+', os: 'Win 10 / Mac 14' }, type: 'restricted', isEdu: true, group: 'edu' },
-            { id: 'k12_device', name: '裝置授權-教育K12 SDL', short: 'K12 SDL', color: 'teal', iconHtml: icons.users, summaryFlagship: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'GTX 1650', os: 'Win 10 / Mac 13' }, summaryEssential: { cpu: 'i5 (11th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' }, summarySubstance: { cpu: 'i5/i7', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 14' }, type: 'restricted', isEdu: true, group: 'edu' },
-        ];
+    // Cloud / Mobile / Services
+    {
+      id: 'firefly_mob', name: 'Adobe Firefly', category: 'cloud', icon: 'sparkles', version: 'AI 引擎', desc: '生成式 AI',
+      intro: 'Adobe 的生成式 AI 引擎，可透過文字指令生成高品質影像與文字特效。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false,
+      has_web: true, has_ios: true, has_android: true,
+      url: 'https://firefly.adobe.com/'
+    },
+    {
+      id: 'pr_mob', name: 'Adobe Premiere App', category: 'cloud', icon: 'video', version: 'Mobile', desc: '行動剪輯',
+      intro: 'Premiere Pro 的行動版延伸，提供手機上的專業剪輯功能。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false,
+      has_ios: true, has_android: true,
+      url: 'https://www.adobe.com/tw/products/premiere-rush.html'
+    },
+    {
+      id: 'express_mob', name: 'Adobe Express', category: 'cloud', icon: 'layout', version: 'All-in-One', desc: '快速設計',
+      intro: '全能線上設計工具，整合海報製作、影片剪輯與 PDF 編輯功能。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false,
+      has_web: true, has_ios: true, has_android: true,
+      url: 'https://www.adobe.com/tw/express/'
+    },
+    {
+      id: 'capture', name: 'Adobe Capture', category: 'cloud', icon: 'camera', version: 'Mobile', desc: '素材擷取',
+      intro: '將手機相機變成向量轉換器，隨時擷取色彩、圖案與字型素材。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_ios: true, has_android: true,
+      url: 'https://www.adobe.com/tw/products/capture.html'
+    },
+    {
+      id: 'lr_mob', name: 'Adobe Lightroom (Mobile)', category: 'cloud', icon: 'image', version: 'Multi-Platform', desc: '行動修圖',
+      intro: '強大的雲端相片服務，支援跨裝置編輯、整理與分享高解析度照片。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 20, is_heavy: false, is_video: false,
+      has_web: true, has_ios: true, has_android: true,
+      url: 'https://www.adobe.com/tw/products/photoshop-lightroom.html'
+    },
+    {
+      id: 'ac_mob', name: 'Adobe Acrobat Reader (Mobile)', category: 'cloud', icon: 'file-text', version: 'Multi-Platform', desc: 'PDF 閱讀',
+      intro: '全球標準的 PDF 檢視器，支援在行動裝置上檢視、簽署與註解 PDF。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_web: true, has_ios: true, has_android: true,
+      url: 'https://acrobat.adobe.com/tw/zh-Hant/mobile/acrobat-reader.html'
+    },
+    {
+      id: 'behance', name: 'Behance', category: 'cloud', icon: 'globe', version: 'Service', desc: '創意社群',
+      intro: '全球最大的創意作品展示平台，可建立個人作品集並發掘靈感。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_web: true, has_ios: true, has_android: true,
+      url: 'https://www.behance.net/'
+    },
+    {
+      id: 'font', name: 'Adobe Fonts', category: 'cloud', icon: 'type', version: 'Service', desc: '雲端字型',
+      intro: '提供數千種高品質字型，可一鍵同步至所有 Creative Cloud 應用程式。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_web: true,
+      url: 'https://fonts.adobe.com/'
+    },
+    {
+      id: 'color', name: 'Adobe Color', category: 'cloud', icon: 'palette', version: 'Service', desc: '配色工具',
+      intro: '專業配色方案產生器，可從圖片擷取色彩或探索社群創作的色票。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_web: true,
+      url: 'https://color.adobe.com/'
+    },
+    {
+      id: 'port', name: 'Adobe Portfolio', category: 'cloud', icon: 'globe', version: 'Service', desc: '作品集網站',
+      intro: '快速建立個人作品集網站的工具，直接連動 Behance 與 Lightroom。',
+      min_os_win: '-', min_os_mac: '-', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false, is_video: false,
+      has_web: true,
+      url: 'https://portfolio.adobe.com/'
+    }
+  ];
 
-        // --- 3. Alpine Component Logic ---
-        function adobeApp() {
-            return {
-                activeLicId: 'commercial',
-                tenderLevel: 'flagship',
-                sidebarOpen: false,
-                isAuditMode: false,
-                showCopyFeedback: false,
-                selectedApp: null,
-                
-                // Static Data
-                icons: icons,
-                licenses: licensesData,
-                
-                // Getters
-                get activeLic() {
-                    return this.licenses.find(l => l.id === this.activeLicId);
-                },
-                
-                get filteredApps() {
-                    const lic = this.activeLic;
-                    let apps = appsData;
+  const licenses = [
+    {
+      id: 'commercial', name: '指名授權-商業', short: '商業指名', color: 'blue', icon: 'building-2',
+      summaryFlagship: { cpu: 'i7/i9 (14th)', ram: '64 GB', gpu: 'RTX 4070', os: 'Win 11 / Mac 14' },
+      summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 11 / Mac 13' },
+      type: 'full', isEdu: false, group: 'comm_gov'
+    },
+    {
+      id: 'gov_frl', name: '離線授權-政府FRL', short: '政府 FRL', color: 'rose', icon: 'shield-alert',
+      summaryFlagship: { cpu: 'Xeon W', ram: '64 GB+', gpu: 'RTX 4080', os: 'Win 11 (離線)' },
+      summaryEssential: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 11 (離線)' },
+      type: 'restricted', isEdu: false, group: 'comm_gov'
+    },
+    {
+      id: 'edu_named', name: '指名授權-教育大專院校', short: '大專指名', color: 'indigo', icon: 'user',
+      summaryFlagship: { cpu: 'i7 (13th)', ram: '32 GB', gpu: 'RTX 4060', os: 'Win 11 / Mac 14' },
+      summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: '內顯/入門獨顯', os: 'Win 11 / Mac 13' },
+      summarySubstance: { cpu: 'i7/i9', ram: '32 GB', gpu: 'RTX 3060+', os: 'Win 11 / Mac 14' },
+      type: 'full', isEdu: true, group: 'edu'
+    },
+    {
+      id: 'k12_named', name: '指名授權-教育K12', short: 'K12 指名', color: 'emerald', icon: 'user',
+      summaryFlagship: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
+      summaryEssential: { cpu: 'i5 (12th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
+      summarySubstance: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 14' },
+      type: 'full', isEdu: true, group: 'edu'
+    },
+    {
+      id: 'edu_device', name: '裝置授權-教育大專院校 SDL', short: '大專 SDL', color: 'purple', icon: 'school',
+      summaryFlagship: { cpu: 'i7 (12th)', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 13' },
+      summaryEssential: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
+      summarySubstance: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060+', os: 'Win 10 / Mac 14' },
+      type: 'restricted', isEdu: true, group: 'edu'
+    },
+    {
+      id: 'k12_device', name: '裝置授權-教育K12 SDL', short: 'K12 SDL', color: 'teal', icon: 'users',
+      summaryFlagship: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'GTX 1650', os: 'Win 10 / Mac 13' },
+      summaryEssential: { cpu: 'i5 (11th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
+      summarySubstance: { cpu: 'i5/i7', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 14' },
+      type: 'restricted', isEdu: true, group: 'edu'
+    }
+  ];
 
-                    // Filter based on License Type (Restricted vs Full)
-                    if (lic.type === 'restricted') {
-                        apps = apps.filter(app => app.category === 'desktop' || app.category === 'eol' || app.category === 'substance');
-                        apps = apps.filter(app => !app.sdl_excluded);
-                    }
+  // ====== State ======
+  let activeLicId = 'commercial';
+  let tenderLevel = 'flagship'; // flagship | essential | substance
+  let isAuditMode = false;
 
-                    // Filter Substance Apps (Only for Edu or if explicitly included, handled loosely here, specific FRL check below)
-                    if (!lic.isEdu || lic.id === 'gov_frl') {
-                        apps = apps.filter(app => app.category !== 'substance');
-                    }
+  function getActiveLic() {
+    return licenses.find(l => l.id === activeLicId);
+  }
 
-                    // FRL specific exclusions
-                    if (lic.id === 'gov_frl') {
-                        apps = apps.filter(app => !app.frl_excluded);
-                    }
+  function getFilteredApps(licType, isEdu, licId) {
+    let apps = adobeApps.slice();
+    if (licType === 'restricted') {
+      apps = apps.filter(app =>
+        app.category === 'desktop' ||
+        app.category === 'eol' ||
+        app.category === 'substance'
+      );
+      apps = apps.filter(app => !app.sdl_excluded);
+    }
+    if (!isEdu || licId === 'gov_frl') {
+      apps = apps.filter(app => app.category !== 'substance');
+    }
+    if (licId === 'gov_frl') {
+      apps = apps.filter(app => !app.frl_excluded);
+    }
+    return apps;
+  }
 
-                    return apps;
-                },
+  function getTenderText(lic, level) {
+    const isRestrictedLocal = lic.type === 'restricted';
+    const apps = getFilteredApps(lic.type, lic.isEdu, lic.id);
+    let summary = level === 'flagship'
+      ? lic.summaryFlagship
+      : level === 'essential'
+        ? lic.summaryEssential
+        : lic.summarySubstance;
 
-                // Derived Lists
-                get desktopApps() { return this.filteredApps.filter(a => a.category === 'desktop'); },
-                get substanceApps() { return this.filteredApps.filter(a => a.category === 'substance'); },
-                get eolApps() { return this.filteredApps.filter(a => a.category === 'eol'); },
-                get cloudApps() { return this.filteredApps.filter(a => a.category === 'cloud'); },
+    const desktopApps = apps
+      .filter(a => a.category === 'desktop')
+      .map(a => `${a.name}${a.alert ? ` (${a.alert})` : ''}`)
+      .join('\n   - ');
 
-                // Actions
-                switchLicense(id) {
-                    this.activeLicId = id;
-                    this.tenderLevel = 'flagship'; // Reset level on license change
-                    this.sidebarOpen = false; // Close mobile sidebar
-                },
+    const substanceApps = apps
+      .filter(a => a.category === 'substance')
+      .map(a => a.name)
+      .join(', ');
 
-                openModal(app) {
-                    this.selectedApp = app;
-                },
+    const mobileApps = apps
+      .filter(a => a.category === 'cloud')
+      .map(a => {
+        const p = [];
+        if (a.has_web) p.push('Web');
+        if (a.has_ios) p.push('iOS');
+        if (a.has_android) p.push('Android');
+        return `${a.name} [${p.join('/')}]`;
+      })
+      .join('\n   - ');
 
-                // Generate Text Logic (Ported from React)
-                generateText() {
-                    const lic = this.activeLic;
-                    const level = this.tenderLevel;
-                    const apps = this.filteredApps;
-                    
-                    let summary = level === 'flagship' ? lic.summaryFlagship : level === 'essential' ? lic.summaryEssential : lic.summarySubstance;
-                    
-                    const desktopList = apps.filter(a => a.category === 'desktop').map(a => `${a.name}${a.alert ? ` (${a.alert})` : ''}`).join('\n   - ');
-                    const substanceList = apps.filter(a => a.category === 'substance').map(a => a.name).join(', ');
-                    const mobileList = apps.filter(a => a.category === 'cloud').map(a => {
-                        let platforms = [];
-                        if (a.has_web) platforms.push('Web');
-                        if (a.has_ios) platforms.push('iOS');
-                        if (a.has_android) platforms.push('Android');
-                        return `${a.name} [${platforms.join('/')}]`;
-                    }).join('\n   - ');
-                    const eolList = apps.filter(a => a.category === 'eol').map(a => `${a.name}: ${a.alert}`).join('\n   - ');
+    const eolApps = apps
+      .filter(a => a.category === 'eol')
+      .map(a => `${a.name}: ${a.alert || ''}`)
+      .join('\n   - ');
 
-                    let text = `【Adobe CC 2026 (v26) 硬體採購規格書 - ${lic.name}】\n採購等級：${level === 'flagship' ? '全套旗艦規格' : level === 'essential' ? '基礎平面規格' : 'Substance 3D 專用'}\n資料來源：Adobe 官方網站 (HelpX) - 2025/2026 Release\n\n【資安風險聲明 (Security Advisory)】\n微軟將於 2025 年 10 月 14 日終止 Windows 10 支援。\n為資安合規，強烈建議採購 Windows 11。\n參考連結：https://support.microsoft.com/zh-tw/windows/windows-10-%E6%94%AF%E6%8F%B4%E5%B7%B2%E6%96%BC-2025-%E5%B9%B4-10-%E6%9C%88-14-%E6%97%A5%E7%B5%90%E6%9D%9F-2ca8b313-1946-43d3-b55c-2b95b107f281\n\n【硬體規格總結】\n● 作業系統：Windows 11 (建議) / Windows 10 22H2 (最低)\n● 處理器 (CPU)：${summary?.cpu || '-'} ${level === 'essential' ? '' : '(需支援 AVX2 指令集)'}\n● 記憶體 (RAM)：${summary?.ram || '-'}\n● 顯示卡 (GPU)：${summary?.gpu || '-'}\n\n=== 軟體授權清單 (桌面端) ===\n本案採購包含 Adobe Creative Cloud 全套授權，桌面軟體清單如下：\n   - ${desktopList}\n`;
+    let text = `【Adobe CC 2026 (v26) 硬體採購規格書 - ${lic.name}】
+採購等級：${level === 'flagship' ? '全套旗艦規格' : level === 'essential' ? '基礎平面規格' : 'Substance 3D 專用'}
+資料來源：Adobe 官方網站 (HelpX) - 2025/2026 Release
 
-                    if (substanceList.length > 0) text += `\n=== 教育版專屬權益 (不包含Substance 3D Assets) ===\n本授權方案包含以下 3D 創作軟體：\n   - ${substanceList}\n`;
-                    
-                    text += `\n=== 特別註記軟體 (不列入規格計算) ===\n以下軟體雖包含於授權中 (部分例外)，但因狀態特殊，不列入硬體效能評估：\n   - ${eolList}\n`;
-                    
-                    if (lic.type !== 'restricted') {
-                        text += `\n=== 行動裝置應用程式 (Mobile Apps) 與 網頁服務 ===\n包含以下項目 (需具備 Adobe ID 登入權限)：\n   - ${mobileList}\n`;
-                    } else {
-                        text += `\n★ 排除項目宣告 (SDL/FRL 限制):\n- 本案採購之授權為【${lic.name}】，不包含行動裝置 App 與雲端服務。\n`;
-                    }
-                    return text;
-                },
+【資安風險聲明 (Security Advisory)】
+微軟將於 2025 年 10 月 14 日終止 Windows 10 支援。
+為資安合規，強烈建議採購 Windows 11。
+參考連結：https://support.microsoft.com/zh-tw/windows/windows-10-%E6%94%AF%E6%8F%B4%E5%B7%B2%E6%96%BC-2025-%E5%B9%B4-10-%E6%9C%88-14-%E6%97%A5%E7%B5%90%E6%9D%9F-2ca8b313-1946-43d3-b55c-2b95b107f281
 
-                copyToClipboard() {
-                    const text = this.generateText();
-                    navigator.clipboard.writeText(text).then(() => {
-                        this.showCopyFeedback = true;
-                        setTimeout(() => this.showCopyFeedback = false, 2000);
-                    });
-                },
+【硬體規格總結】
+● 作業系統：Windows 11 (建議) / Windows 10 22H2 (最低)
+● 處理器 (CPU)：${summary && summary.cpu ? summary.cpu : '-'} ${level === 'essential' ? '' : '(需支援 AVX2 指令集)'}
+● 記憶體 (RAM)：${summary && summary.ram ? summary.ram : '-'}
+● 顯示卡 (GPU)：${summary && summary.gpu ? summary.gpu : '-'}
 
-                downloadFile() {
-                    const text = this.generateText();
-                    const blob = new Blob([text], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Adobe_Spec_${this.activeLic.short}_${this.tenderLevel}.txt`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }
-            }
+=== 軟體授權清單 (桌面端) ===
+本案採購包含 Adobe Creative Cloud 全套授權，桌面軟體清單如下：
+   - ${desktopApps}
+`;
+
+    if (substanceApps && substanceApps.length > 0) {
+      text += `
+
+=== 教育版專屬權益 (不包含Substance 3D Assets) ===
+本授權方案包含以下 3D 創作軟體：
+   - ${substanceApps}
+`;
+    }
+
+    text += `
+
+=== 特別註記軟體 (不列入規格計算) ===
+以下軟體雖包含於授權中 (部分例外)，但因狀態特殊，不列入硬體效能評估：
+   - ${eolApps}
+`;
+
+    if (!isRestrictedLocal) {
+      text += `
+
+=== 行動裝置應用程式 (Mobile Apps) 與 網頁服務 ===
+包含以下項目 (需具備 Adobe ID 登入權限)：
+   - ${mobileApps}
+`;
+    } else {
+      text += `
+
+★ 排除項目宣告 (SDL/FRL 限制):
+- 本案採購之授權為【${lic.name}】，不包含行動裝置 App 與雲端服務。
+`;
+    }
+
+    return text;
+  }
+
+  // ====== Rendering ======
+  function iconSvg(id) {
+    return `<svg><use href="#icon-${id}"></use></svg>`;
+  }
+
+  function renderSidebar() {
+    const commWrap = document.getElementById('comm-gov-list');
+    const eduWrap = document.getElementById('edu-list');
+    commWrap.innerHTML = '';
+    eduWrap.innerHTML = '';
+    const activeId = activeLicId;
+
+    licenses.filter(l => l.group === 'comm_gov').forEach(lic => {
+      const btn = document.createElement('button');
+      btn.className = 'lic-btn' + (lic.id === activeId ? ' active' : '');
+      btn.dataset.licId = lic.id;
+      btn.innerHTML = `
+        <div class="lic-btn-icon">
+          ${iconSvg(lic.icon)}
+        </div>
+        <span>${lic.short}</span>
+      `;
+      commWrap.appendChild(btn);
+    });
+
+    licenses.filter(l => l.group === 'edu').forEach(lic => {
+      const btn = document.createElement('button');
+      btn.className = 'lic-btn' + (lic.id === activeId ? ' active' : '');
+      btn.dataset.licId = lic.id;
+      btn.innerHTML = `
+        <div class="lic-btn-icon">
+          ${iconSvg(lic.icon)}
+        </div>
+        <span>${lic.short}</span>
+      `;
+      eduWrap.appendChild(btn);
+    });
+  }
+
+  function renderMainHeader() {
+    const lic = getActiveLic();
+    const titleEl = document.getElementById('lic-title');
+    const subEl = document.getElementById('lic-subtitle');
+    titleEl.textContent = lic.name;
+    subEl.textContent = lic.type === 'restricted'
+      ? '⚠️ 限制型授權：僅包含桌面端軟體，已自動過濾不適用項目。'
+      : '✅ 完整型授權：包含桌面、行動裝置與雲端服務。';
+
+    // Tender buttons
+    const tenderBtns = document.querySelectorAll('.tender-btn');
+    tenderBtns.forEach(btn => {
+      const level = btn.dataset.level;
+      btn.classList.remove('active', 'flagship', 'essential', 'substance');
+      if (level === tenderLevel) {
+        btn.classList.add('active', level);
+      }
+      // Substance 按鈕在非 Edu 或 gov_frl 時禁用
+      if (level === 'substance') {
+        if (!lic.isEdu || lic.id === 'gov_frl') {
+          btn.disabled = true;
+          btn.style.opacity = 0.4;
+        } else {
+          btn.disabled = false;
+          btn.style.opacity = 1;
         }
-    </script>
+      }
+    });
+
+    // Audit button
+    const auditBtn = document.getElementById('audit-toggle');
+    const auditText = auditBtn.querySelector('.audit-text');
+    if (isAuditMode) {
+      auditBtn.classList.add('btn-audit-on');
+      auditText.textContent = '關閉稽核';
+      auditBtn.querySelector('svg use').setAttribute('href', '#icon-eye');
+    } else {
+      auditBtn.classList.remove('btn-audit-on');
+      auditText.textContent = '資料稽核';
+      auditBtn.querySelector('svg use').setAttribute('href', '#icon-clipboard-check');
+    }
+  }
+
+  function renderSummaryBanner() {
+    const lic = getActiveLic();
+    const wrap = document.getElementById('summary-banner');
+    let summary;
+    if (tenderLevel === 'flagship') summary = lic.summaryFlagship;
+    else if (tenderLevel === 'essential') summary = lic.summaryEssential;
+    else summary = lic.summarySubstance;
+
+    if (!summary) {
+      wrap.innerHTML = '';
+      return;
+    }
+
+    let title;
+    if (tenderLevel === 'flagship') title = '全套旗艦安裝・高階影視門檻';
+    else if (tenderLevel === 'essential') title = '基礎平面安裝・一般設計門檻';
+    else title = 'Substance 3D 專用・高階 3D 門檻';
+
+    const bannerClass = tenderLevel === 'flagship' ? 'flagship'
+                      : tenderLevel === 'essential' ? 'essential'
+                      : 'substance';
+
+    wrap.innerHTML = `
+      <div class="summary-banner ${bannerClass}">
+        <div class="summary-banner-icon-bg">
+          ${iconSvg('zap')}
+        </div>
+        <div class="summary-banner-title">
+          <span>${iconSvg('check-circle')}</span>
+          <span>${title}</span>
+        </div>
+        <div class="summary-banner-advisory">
+          <div style="flex-shrink:0;">
+            <div style="background:#f97373;color:#fff;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;">
+              ${iconSvg('calendar-clock')}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.8rem;font-weight:700;">資安風險聲明 (Security Advisory)</div>
+            <p style="font-size:0.75rem;line-height:1.4;margin:0.2rem 0 0;">
+              微軟將於 2025 年 10 月 14 日終止 Windows 10 支援。為資安合規，建議全面採購 Windows 11。
+            </p>
+          </div>
+        </div>
+        <div class="summary-banner-grid">
+          <div class="summary-banner-card">
+            <div class="summary-banner-card-label">
+              ${iconSvg('hard-drive')}
+              <span>OS 系統</span>
+            </div>
+            <div class="summary-banner-card-value">${summary.os}</div>
+          </div>
+          <div class="summary-banner-card">
+            <div class="summary-banner-card-label">
+              ${iconSvg('cpu')}
+              <span>處理器 CPU</span>
+            </div>
+            <div class="summary-banner-card-value">${summary.cpu}</div>
+            <div class="summary-banner-card-sub">${tenderLevel === 'flagship' ? '需支援 AVX2 指令集' : '一般設計使用足夠'}</div>
+          </div>
+          <div class="summary-banner-card">
+            <div class="summary-banner-card-label">
+              ${iconSvg('layers')}
+              <span>記憶體 RAM</span>
+            </div>
+            <div class="summary-banner-card-value">${summary.ram}</div>
+            <div class="summary-banner-card-sub">${tenderLevel === 'flagship' ? 'AE/PR 長時間剪輯建議' : 'PS/AI 使用足夠'}</div>
+          </div>
+          <div class="summary-banner-card">
+            <div class="summary-banner-card-label">
+              ${iconSvg('monitor')}
+              <span>顯示卡 GPU</span>
+            </div>
+            <div class="summary-banner-card-value">${summary.gpu}</div>
+            <div class="summary-banner-card-sub">${tenderLevel === 'flagship' ? '支援硬體加速與 4K 工作流' : '基本硬體加速即可'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function platformBadges(app) {
+    const badges = [];
+    if (app.has_web) {
+      badges.push('<span class="platform-badge web">Web</span>');
+    }
+    if (app.has_ios) {
+      badges.push('<span class="platform-badge ios">iOS</span>');
+    }
+    if (app.has_android) {
+      badges.push('<span class="platform-badge android">Android</span>');
+    }
+    return badges.join('');
+  }
+
+  function renderAppTable(title, iconId, apps, opts) {
+    if (!apps.length) return '';
+    const { showSystemCols, isAuditModeLocal, level } = opts;
+
+    let theadCols = `
+      <th>軟體名稱 / 版本 / 支援平台</th>
+    `;
+    if (showSystemCols) {
+      theadCols += `
+        <th>Windows 需求</th>
+        <th>macOS 需求</th>
+        <th>硬體建議 (RAM / GPU)</th>
+      `;
+    }
+    if (isAuditModeLocal) {
+      theadCols += `<th class="audit-col">官方溯源稽核</th>`;
+    }
+
+    const rows = apps.map(app => {
+      const isDimmed = (level === 'essential' && app.is_heavy) || app.is_eol;
+      const classesRow = isDimmed ? 'app-dimmed' : '';
+      const showSystem = app.category === 'desktop' || app.category === 'substance' || app.category === 'eol';
+      const versionOrPlatform = app.category === 'cloud'
+        ? `<div class="app-platform-badges">${platformBadges(app)}</div>`
+        : `<div class="app-version">${app.version}</div>`;
+
+      let alertHtml = '';
+      if (app.alert) {
+        const alertClass = app.is_eol ? 'app-alert-eol' : 'app-alert-normal';
+        const alertIcon = app.is_eol ? 'x-circle' : 'alert-triangle';
+        alertHtml = `
+          <div class="app-alert-pill ${alertClass}">
+            ${iconSvg(alertIcon)}
+            <span>${app.alert}</span>
+          </div>
+        `;
+      }
+
+      let systemCols = '';
+      if (showSystemCols && showSystem) {
+        systemCols = `
+          <td>
+            <div style="font-weight:500;">${app.min_os_win}</div>
+            ${app.min_os_win !== '-' ? '<div style="font-size:0.7rem;color:#9ca3af;">最低支援版本</div>' : ''}
+          </td>
+          <td>
+            <div style="font-weight:500;${app.min_os_mac.includes('不支援') ? 'color:#dc2626;' : ''}">${app.min_os_mac}</div>
+            ${app.min_os_mac.includes('14') && !isDimmed ? '<div style="font-size:0.7rem;color:#b45309;">建議 Sonoma 最佳</div>' : ''}
+          </td>
+          <td>
+            <div style="font-size:0.8rem;">
+              <div style="display:flex;justify-content:space-between;gap:0.5rem;">
+                <span style="font-size:0.7rem;color:#94a3b8;">RAM</span>
+                <span style="font-weight:500;">'${app.rec_ram}'</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;gap:0.5rem;">
+                <span style="font-size:0.7rem;color:#94a3b8;">GPU</span>
+                <span style="font-weight:500;">'${app.rec_gpu}'</span>
+              </div>
+            </div>
+          </td>
+        `;
+      } else if (showSystemCols) {
+        systemCols = `
+          <td></td><td></td><td></td>
+        `;
+      }
+
+      let auditCol = '';
+      if (isAuditModeLocal) {
+        auditCol = `
+          <td class="audit-col">
+            <a class="audit-link" href="${app.url}" target="_blank" rel="noopener">
+              ${iconSvg('external-link')}
+              <span>開啟官網查證</span>
+            </a>
+            <label class="audit-checkbox-label">
+              <input type="checkbox" />
+              <span>已確認</span>
+            </label>
+          </td>
+        `;
+      }
+
+      return `
+        <tr class="${classesRow}">
+          <td>
+            <button class="app-name-btn app-row-button" data-app-id="${app.id}">
+              <div class="app-icon-badge">
+                ${iconSvg(app.icon)}
+              </div>
+              <div>
+                <div class="app-name-main">
+                  <span>${app.name}</span>
+                  ${app.is_eol ? '<span class="app-chip-eol">不列入規格</span>' : ''}
+                </div>
+                ${versionOrPlatform}
+                ${isDimmed && !app.is_eol ? '<div style="font-size:0.65rem;font-weight:700;color:#6b7280;margin-top:0.15rem;">[非基礎安裝核心軟體]</div>' : ''}
+                ${alertHtml}
+              </div>
+            </button>
+          </td>
+          ${systemCols}
+          ${auditCol}
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="table-card">
+        <div class="table-card-header">
+          ${iconSvg(iconId)}
+          <span>${title}</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>${theadCols}</tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTables() {
+    const lic = getActiveLic();
+    const apps = getFilteredApps(lic.type, lic.isEdu, lic.id);
+    const desktopApps = apps.filter(a => a.category === 'desktop');
+    const substanceApps = apps.filter(a => a.category === 'substance');
+    const cloudApps = apps.filter(a => a.category === 'cloud');
+    const eolApps = apps.filter(a => a.category === 'eol');
+    const tablesWrap = document.getElementById('tables');
+
+    const showSysColsDesktop = true;
+    const showSysColsSubstance = true;
+    const showSysColsEol = true;
+    const tablesHtml = [];
+
+    tablesHtml.push(
+      renderAppTable(
+        '桌面軟體 (Desktop Apps)',
+        'monitor',
+        desktopApps,
+        { showSystemCols: showSysColsDesktop, isAuditModeLocal: isAuditMode, level: tenderLevel }
+      )
+    );
+
+    if (substanceApps.length) {
+      tablesHtml.push(
+        renderAppTable(
+          '教育版專屬權益 (不包含Substance 3D Assets)',
+          'boxes',
+          substanceApps,
+          { showSystemCols: showSysColsSubstance, isAuditModeLocal: isAuditMode, level: tenderLevel }
+        )
+      );
+    }
+
+    if (eolApps.length) {
+      tablesHtml.push(
+        renderAppTable(
+          '特殊狀態軟體 (EOL / Free)',
+          'alert-octagon',
+          eolApps,
+          { showSystemCols: showSysColsEol, isAuditModeLocal: isAuditMode, level: tenderLevel }
+        )
+      );
+    }
+
+    if (cloudApps.length) {
+      tablesHtml.push(
+        renderAppTable(
+          '行動裝置應用程式 (Mobile Apps) 與 網頁服務',
+          'smartphone',
+          cloudApps,
+          { showSystemCols: false, isAuditModeLocal: isAuditMode, level: tenderLevel }
+        )
+      );
+    }
+
+    tablesWrap.innerHTML = tablesHtml.join('');
+
+    const restrictedWrap = document.getElementById('restricted-note-wrap');
+    if (lic.type === 'restricted') {
+      restrictedWrap.innerHTML = `
+        <div class="restricted-note">
+          ${iconSvg('cloud-off')}
+          <div style="font-weight:700;color:#4b5563;">行動裝置與雲端服務區塊已隱藏</div>
+          <p style="margin:0.25rem 0 0;font-size:0.8rem;">
+            依據您選擇的 <strong>${lic.short}</strong> 規範，不包含 Photoshop for iPad、Firefly Web 等服務。<br/>
+            此區塊已自動從投標規格書中移除。
+          </p>
+        </div>
+      `;
+    } else {
+      restrictedWrap.innerHTML = '';
+    }
+  }
+
+  function openModal(appId) {
+    const app = adobeApps.find(a => a.id === appId);
+    if (!app) return;
+    const backdrop = document.getElementById('modal-backdrop');
+    const iconDiv = document.getElementById('modal-icon');
+    const title = document.getElementById('modal-title');
+    const subtitle = document.getElementById('modal-subtitle');
+    const body = document.getElementById('modal-body');
+    const linkBtn = document.getElementById('modal-link');
+
+    iconDiv.className = 'modal-icon desktop';
+    if (app.category === 'substance') iconDiv.className = 'modal-icon substance';
+    else if (app.category === 'cloud') iconDiv.className = 'modal-icon cloud';
+    else if (app.category === 'eol') iconDiv.className = 'modal-icon eol';
+
+    iconDiv.innerHTML = iconSvg(app.icon);
+    title.textContent = app.name;
+    subtitle.textContent = `${app.category.toUpperCase()} • ${app.version}`;
+    body.textContent = app.intro || app.desc;
+    linkBtn.onclick = () => {
+      window.open(app.url, '_blank');
+    };
+
+    backdrop.classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-backdrop').classList.remove('show');
+  }
+
+  function updateAll() {
+    const lic = getActiveLic();
+    // If non-edu or gov_frl, force non-substance level
+    if ((!lic.isEdu || lic.id === 'gov_frl') && tenderLevel === 'substance') {
+      tenderLevel = 'flagship';
+    }
+    renderSidebar();
+    renderMainHeader();
+    renderSummaryBanner();
+    renderTables();
+  }
+
+  // ====== Events ======
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+
+    mobileToggle.addEventListener('click', openSidebar);
+    sidebarClose.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    document.getElementById('comm-gov-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('.lic-btn');
+      if (!btn) return;
+      activeLicId = btn.dataset.licId;
+      tenderLevel = 'flagship';
+      closeSidebar();
+      updateAll();
+    });
+
+    document.getElementById('edu-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('.lic-btn');
+      if (!btn) return;
+      activeLicId = btn.dataset.licId;
+      tenderLevel = 'flagship';
+      closeSidebar();
+      updateAll();
+    });
+
+    document.getElementById('tender-toggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.tender-btn');
+      if (!btn || btn.disabled) return;
+      const lvl = btn.dataset.level;
+      const lic = getActiveLic();
+      if (lvl === 'substance' && (!lic.isEdu || lic.id === 'gov_frl')) return;
+      tenderLevel = lvl;
+      updateAll();
+    });
+
+    document.getElementById('audit-toggle').addEventListener('click', () => {
+      isAuditMode = !isAuditMode;
+      updateAll();
+    });
+
+    document.getElementById('tables').addEventListener('click', (e) => {
+      const btn = e.target.closest('.app-row-button');
+      if (!btn) return;
+      const appId = btn.dataset.appId;
+      openModal(appId);
+    });
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-backdrop') closeModal();
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const lic = getActiveLic();
+      const text = getTenderText(lic, tenderLevel);
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        const btn = document.getElementById('copy-btn');
+        btn.classList.add('copied');
+        btn.querySelector('span').textContent = '已複製';
+        btn.querySelector('svg use').setAttribute('href', '#icon-check-circle');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.querySelector('span').textContent = '複製當下規格';
+          btn.querySelector('svg use').setAttribute('href', '#icon-copy');
+        }, 2000);
+      } catch (e) {}
+      document.body.removeChild(ta);
+    });
+
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const lic = getActiveLic();
+      const text = getTenderText(lic, tenderLevel);
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Adobe_Spec_${lic.short}_${tenderLevel}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    updateAll();
+  });
+</script>
 </body>
 </html>
