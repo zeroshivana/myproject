@@ -15,7 +15,7 @@
             font-family: 'Inter', sans-serif; 
             user-select: none; 
             -webkit-user-select: none;
-            /* Prevent pull-to-refresh on mobile */ 
+            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: contain;
         }
         
@@ -63,7 +63,7 @@
             75% { transform: translateX(5px); }
         }
 
-        /* 劇烈晃動 (神祕方塊/炸彈預告) */
+        /* 劇烈晃動 */
         .shake-intense {
             animation: shakeIntense 0.2s infinite;
         }
@@ -75,7 +75,7 @@
             100% { transform: translate(3px, 3px) rotate(5deg); }
         }
 
-        /* 連鎖震動 (整個畫面) */
+        /* 連鎖震動 */
         .screen-shake-combo {
             animation: screenShake 0.3s ease-in-out;
         }
@@ -246,9 +246,8 @@
                                 再玩一次
                             </button>
                             
-                            <!-- Share Button -->
+                            <!-- Share Button (Updated: No Icon) -->
                             <button id="share-btn" class="w-full flex items-center justify-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3 px-8 rounded-xl transition shadow-lg active:scale-95 border border-[#06C755]/50 group">
-                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.16 7.42c-1-3-5.26-5.22-10.4-5.22-6 0-10.76 3.12-10.76 8 0 3.32 2.3 6.13 6 7.37.5.11 1.07.33.8.92 0 0-.3.81-.37 1s-.07.25.14.36c1 .54 5.56-3.26 5.56-3.26a17.48 17.48 0 0 0 4.29-.68c4.32-.82 6.55-3.37 5.74-6.49zm-13.84 5.6a.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41.41.41 0 0 1 .41.41v3.35h1.59a.41.41 0 0 1 .41.41zm3.22 0a.41.41 0 0 1-.41.41h-.42a.41.41 0 0 1-.41-.41V9.67h-.06l-1.07 3.33a.4.4 0 0 1-.39.29h-.36a.4.4 0 0 1-.39-.27l-1.08-3.35h-.07v3.35a.41.41 0 0 1-.41.41.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h.63a.41.41 0 0 1 .38.28l.89 2.76h.05l.89-2.76a.41.41 0 0 1 .39-.28h.59a.41.41 0 0 1 .41.41zm2.37-3.35h-1.63v1.07h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-1.63v1.05h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h2a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41zm4.7 0H16v1.07h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41H16v1.05h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h2a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41z"/></svg>
                                 分享好友
                             </button>
 
@@ -1305,27 +1304,46 @@
             gameOverContent.classList.add('hidden');
         });
         
-        // Share Button (LIFF ShareTargetPicker)
+        // Share Button (LIFF ShareTargetPicker with Fallback)
         shareBtn.addEventListener('click', async () => {
-            if (!liff.isLoggedIn()) {
-                alert("請先登入 LINE 才能分享！");
-                liff.login();
-                return;
-            }
-            try {
-                const result = await liff.shareTargetPicker([
-                    {
-                        type: "text",
-                        text: `🔥 我在奧多比消消樂拿了 ${score} 分！快來挑戰我的紀錄！`
-                    }
-                ]);
-                if (result) {
-                    // Shared successfully
+            const shareText = `🔥 我在奧多比消消樂拿了 ${score} 分！快來挑戰我的紀錄！`;
+            const shareUrl = window.location.href; // Or specific URL
+
+            // 1. Try LIFF ShareTargetPicker (Best for LINE)
+            if (liff.isInClient() && liff.isApiAvailable('shareTargetPicker')) {
+                try {
+                    const result = await liff.shareTargetPicker([
+                        {
+                            type: "text",
+                            text: shareText
+                        }
+                    ]);
+                    if (result) return; // Success
+                } catch (err) {
+                    console.error("LIFF Share Error", err);
                 }
+            }
+
+            // 2. Fallback to Web Share API (Mobile Browsers / Desktop Safari)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: '奧多比消消樂',
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    return;
+                } catch (err) {
+                    console.error("Web Share Error", err);
+                }
+            }
+
+            // 3. Last Fallback: Copy to Clipboard
+            try {
+                await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+                alert("已複製分享連結！");
             } catch (err) {
-                console.error("Share Error", err);
-                // Fallback for non-LIFF environment or error
-                alert("分享功能僅限於 LINE 內部使用！");
+                alert("無法分享，請手動截圖分享！");
             }
         });
 
