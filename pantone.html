@@ -235,9 +235,6 @@
             state.view = 'playing';
             startRound(state.introBase);
         };
-
-        // startGame is not actually used by gameAction, but we can keep it for completeness or remove it.
-        // The previous error was because startRandomGame was called but not defined.
         
         const handleCardClick = (index) => {
             if (state.showFeedback || state.wrongIndex !== -1) return; // Block clicks during feedback
@@ -264,11 +261,22 @@
 
         const handleShare = () => {
             const text = `我在 Pantone 色彩極限挑戰中活到了第 ${state.level} 關！稱號：${getRankTitle(state.level)}。你也來挑戰看看？`;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("成績已複製到剪貼簿！");
-            }).catch(() => {
-                showToast("複製失敗，請手動截圖分享");
-            });
+            // Using document.execCommand('copy') for wider iframe/sandbox compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("成績已複製到剪貼簿！");
+                } else {
+                    showToast("複製失敗，請手動複製");
+                }
+            } catch (err) {
+                showToast("複製失敗，請手動複製");
+            }
+            document.body.removeChild(textarea);
         };
 
         // --- Rendering ---
@@ -281,7 +289,7 @@
             const pastYearsColors = PANTONE_YEARS.filter(p => p.year !== 2025);
 
             let html = `
-                <div class="animate-fade-in pb-12">
+                <div id="home-view" class="animate-fade-in pb-12">
                     <div class="bg-black text-white p-6 shadow-xl mb-8 relative overflow-hidden group rounded-lg">
                         <h2 class="text-xl md:text-2xl font-black mb-4 uppercase tracking-wide border-b border-white/30 pb-2">How to Play</h2>
                         <ul class="space-y-4 font-bold text-sm md:text-base text-gray-200">
@@ -300,7 +308,7 @@
                         </ul>
                     </div>
 
-                    <button onclick="window.gameAction('random')" class="w-full bg-white border-2 border-black p-5 mb-10 font-black text-lg text-black hover:bg-black hover:text-white transition-all flex items-center justify-between group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] rounded-lg active:scale-[0.98]">
+                    <button id="btn-random" class="w-full bg-white border-2 border-black p-5 mb-10 font-black text-lg text-black hover:bg-black hover:text-white transition-all flex items-center justify-between group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] rounded-lg active:scale-[0.98]">
                         <span class="flex items-center gap-3">${ICONS.refresh} 隨機挑戰 (RANDOM START)</span>
                         <span class="group-hover:translate-x-1 transition-transform">${ICONS.arrowRight}</span>
                     </button>
@@ -312,7 +320,7 @@
                         </h3>
 
                         ${currentYearColor ? `
-                        <div onclick="window.gameAction('intro', ${currentYearColor.year})" class="w-full bg-white shadow-md hover:shadow-2xl transition-all cursor-pointer group border border-gray-200 flex flex-col md:flex-row h-auto md:h-52 mb-8 rounded-xl overflow-hidden transform hover:-translate-y-1">
+                        <div data-action="intro" data-year="${currentYearColor.year}" data-name="${currentYearColor.name}" class="year-card w-full bg-white shadow-md hover:shadow-2xl transition-all cursor-pointer group border border-gray-200 flex flex-col md:flex-row h-auto md:h-52 mb-8 rounded-xl overflow-hidden transform hover:-translate-y-1">
                             <div class="h-48 md:h-full w-full md:w-5/12 relative" style="background-color: ${currentYearColor.hex}">
                                 <div class="absolute top-4 left-4 bg-black/90 text-white text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider font-bold shadow-md ring-1 ring-white/20">2025 New Arrival</div>
                                 <div class="absolute bottom-3 right-3 text-white/40 text-sm font-black tracking-widest uppercase">${currentYearColor.year}</div>
@@ -331,7 +339,7 @@
 
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-8">
                             ${pastYearsColors.map(p => `
-                                <div onclick="window.gameAction('intro', ${p.year}, '${p.name}')" class="bg-white aspect-[3/4] shadow-sm hover:shadow-xl transition-all cursor-pointer group border border-gray-100 flex flex-col rounded-lg overflow-hidden transform hover:-translate-y-1">
+                                <div data-action="intro" data-year="${p.year}" data-name="${p.name}" class="year-card bg-white aspect-[3/4] shadow-sm hover:shadow-xl transition-all cursor-pointer group border border-gray-100 flex flex-col rounded-lg overflow-hidden transform hover:-translate-y-1">
                                     <div class="h-[65%] w-full relative" style="background-color: ${p.hex}">
                                         <div class="absolute bottom-2 right-2 text-white/60 text-[10px] font-black tracking-widest uppercase bg-black/10 px-1 rounded">${p.year}</div>
                                     </div>
@@ -353,8 +361,8 @@
             const p = state.introBase;
             if (!p) return '';
             return `
-                <div class="animate-fade-in flex flex-col bg-white rounded-xl shadow-2xl overflow-hidden mb-12 border border-gray-200 relative">
-                    <button onclick="window.gameAction('home')" class="absolute top-4 right-4 p-2 z-20 bg-white/90 hover:bg-white text-black rounded-full shadow-lg transition-transform hover:scale-110">
+                <div id="intro-view" class="animate-fade-in flex flex-col bg-white rounded-xl shadow-2xl overflow-hidden mb-12 border border-gray-200 relative">
+                    <button id="btn-intro-close" class="absolute top-4 right-4 p-2 z-20 bg-white/90 hover:bg-white text-black rounded-full shadow-lg transition-transform hover:scale-110">
                         ${ICONS.close}
                     </button>
                     <div class="flex flex-col border-b-[16px]" style="border-color: ${p.hex}">
@@ -378,7 +386,7 @@
                         </div>
                     </div>
                     <div class="p-6 bg-gray-50 border-t border-gray-100">
-                        <button onclick="window.gameAction('startIntro')" class="w-full bg-black text-white py-5 font-black text-xl hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 shadow-xl rounded-lg active:scale-[0.99]">
+                        <button id="btn-start-challenge" class="w-full bg-black text-white py-5 font-black text-xl hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 shadow-xl rounded-lg active:scale-[0.99]">
                             ${ICONS.play} START CHALLENGE
                         </button>
                     </div>
@@ -412,7 +420,7 @@
                 const shakeClass = isWrong ? 'animate-shake' : '';
 
                 cardsHtml += `
-                    <div onclick="window.gameAction('clickCard', ${i})" class="relative bg-white shadow-lg flex flex-col transition-all duration-200 cursor-pointer hover:shadow-2xl hover:scale-[1.02] rounded-lg overflow-hidden ${shakeClass}" style="min-height: 280px">
+                    <div data-card-index="${i}" class="game-card relative bg-white shadow-lg flex flex-col transition-all duration-200 cursor-pointer hover:shadow-2xl hover:scale-[1.02] rounded-lg overflow-hidden ${shakeClass}" style="min-height: 280px">
                         <div class="flex-1 w-full relative group min-h-[160px]" style="background-color: ${color}">
                             ${feedbackHtml}
                         </div>
@@ -431,7 +439,7 @@
             }
 
             return `
-                <div class="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in w-full max-w-md mx-auto pb-12">
+                <div id="playing-view" class="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in w-full max-w-md mx-auto pb-12">
                     ${cardsHtml}
                 </div>
             `;
@@ -439,7 +447,7 @@
 
         const renderGameOver = () => {
             return `
-                <div class="bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] text-center animate-fade-in border-t-[16px] relative rounded-xl overflow-hidden max-w-md mx-auto mb-12" style="border-color: ${state.currentBase.hex}">
+                <div id="gameover-view" class="bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] text-center animate-fade-in border-t-[16px] relative rounded-xl overflow-hidden max-w-md mx-auto mb-12" style="border-color: ${state.currentBase.hex}">
                     <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-xl border-4 border-gray-50">
                         ${ICONS.trophy}
                     </div>
@@ -455,10 +463,10 @@
                         </div>
                     </div>
                     <div class="space-y-3">
-                        <button onclick="window.gameAction('home')" class="w-full bg-gray-100 text-black py-4 font-black hover:bg-gray-200 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
+                        <button id="btn-try-again" class="w-full bg-gray-100 text-black py-4 font-black hover:bg-gray-200 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
                             ${ICONS.refresh} Try Again
                         </button>
-                        <button onclick="window.gameAction('share')" class="w-full bg-black text-white py-4 font-black hover:bg-neutral-800 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
+                        <button id="btn-share-result" class="w-full bg-black text-white py-4 font-black hover:bg-neutral-800 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
                             ${ICONS.share} Share Result
                         </button>
                     </div>
@@ -468,6 +476,64 @@
                 </div>
             `;
         };
+        
+        // --- Event Binding Logic ---
+
+        const bindHomeEvents = () => {
+            document.getElementById('btn-random').addEventListener('click', () => startRandomGame());
+            
+            // Bind events for all year cards
+            document.querySelectorAll('.year-card').forEach(card => {
+                card.addEventListener('click', (event) => {
+                    const year = parseInt(card.dataset.year);
+                    const name = card.dataset.name;
+                    
+                    let target = PANTONE_YEARS.find(p => p.year === year && p.name === name);
+                    if (!target) {
+                        // Fallback for unique single year colors
+                        target = PANTONE_YEARS.find(p => p.year === year);
+                    }
+
+                    if (target) {
+                        handleYearSelect(target);
+                        render();
+                    }
+                });
+            });
+        };
+
+        const bindIntroEvents = () => {
+            document.getElementById('btn-intro-close').addEventListener('click', () => {
+                state.view = 'home';
+                render();
+            });
+            document.getElementById('btn-start-challenge').addEventListener('click', () => startGameFromIntro());
+        };
+
+        const bindPlayingEvents = () => {
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const index = parseInt(card.dataset.cardIndex);
+                    handleCardClick(index);
+                });
+            });
+        };
+
+        const bindGameOverEvents = () => {
+            document.getElementById('btn-try-again').addEventListener('click', () => {
+                state.view = 'home';
+                render();
+            });
+            document.getElementById('btn-share-result').addEventListener('click', handleShare);
+        };
+
+        const bindEvents = () => {
+            if (state.view === 'home') bindHomeEvents();
+            else if (state.view === 'intro') bindIntroEvents();
+            else if (state.view === 'playing') bindPlayingEvents();
+            else if (state.view === 'gameover') bindGameOverEvents();
+        };
+
 
         const render = () => {
             // Update Header
@@ -488,51 +554,13 @@
             } else if (state.view === 'gameover') {
                 app.innerHTML = renderGameOver();
             }
-        };
 
-        // --- Global Event Handler ---
-        window.gameAction = (action, payload1, payload2) => {
-            if (action === 'random') {
-                startRandomGame();
-            } else if (action === 'intro') {
-                // Find year object, payload1 is year, payload2 is name (optional check)
-                // Actually easier to just find by year or handle unique keys in loop
-                const year = payload1;
-                // Since duplicate years exist (2021, 2016), we might need more precise selection if just year passed
-                // The loop above passes year and name if needed, but year + name combo is unique
-                // Let's just find the exact object in PANTONE_YEARS based on strict match if possible or just loop index
-                // Simplified: Pass the year, if duplicates, we might grab first. 
-                // Better approach: Pass index in array. But let's stick to year logic for now or filter.
-                // Re-find based on click context? 
-                // Let's iterate and match.
-                // Actually, let's just pass the index in array? Safer.
-                // Updated logic: find matching year and name if provided, or just year.
-                
-                let target;
-                if (payload2) {
-                    target = PANTONE_YEARS.find(p => p.year === payload1 && p.name === payload2);
-                } else {
-                    target = PANTONE_YEARS.find(p => p.year === payload1);
-                }
-                
-                if (target) {
-                    handleYearSelect(target);
-                }
-                render(); // Ensure scroll reset happens in handleYearSelect
-            } else if (action === 'home') {
-                state.view = 'home';
-                render();
-            } else if (action === 'startIntro') {
-                startGameFromIntro();
-            } else if (action === 'clickCard') {
-                handleCardClick(payload1);
-            } else if (action === 'share') {
-                handleShare();
-            }
+            // Bind events after rendering new content
+            bindEvents();
         };
 
         // Initialize
-        render();
+        window.onload = render;
 
     </script>
 </body>
