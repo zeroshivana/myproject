@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
@@ -214,16 +214,31 @@
             render();
         };
 
-        const startGame = (fromIntro = false) => {
-            state.level = 1;
-            state.view = 'playing';
-            if (fromIntro && state.introBase) {
-                startRound(state.introBase);
-            } else {
-                startRound();
-            }
+        const handleYearSelect = (yearData) => {
+            state.introBase = yearData;
+            state.view = 'intro';
+            state.showFeedback = false;
+            state.wrongIndex = -1;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        // Define startRandomGame
+        const startRandomGame = () => {
+            state.level = 1;
+            state.view = 'playing';
+            startRound();
+        };
+
+        // Define startGameFromIntro
+        const startGameFromIntro = () => {
+            state.level = 1;
+            state.view = 'playing';
+            startRound(state.introBase);
+        };
+
+        // startGame is not actually used by gameAction, but we can keep it for completeness or remove it.
+        // The previous error was because startRandomGame was called but not defined.
+        
         const handleCardClick = (index) => {
             if (state.showFeedback || state.wrongIndex !== -1) return; // Block clicks during feedback
 
