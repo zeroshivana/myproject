@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-TW">  
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>奧多比碰碰樂 (5x5)</title>
+    <title>奧多比碰碰樂</title>
+    <!-- Import Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             /* Adobe Dark Mode Palette */
@@ -19,7 +21,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             display: flex;
@@ -51,41 +53,27 @@
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-
-        .adobe-logo {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            /* 3D effect matching tiles */
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5), 0 5px 5px rgba(0,0,0,0.3);
-            position: relative;
-            top: -2px;
+            /* Allow shrinking if needed on very small screens, but title has nowrap */
+            flex-shrink: 1; 
             overflow: hidden;
-            background-color: #000; /* Fallback bg */
-        }
-        
-        .adobe-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
         .game-title {
-            font-size: 24px;
-            font-weight: 600;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 28px; /* Slightly smaller */
+            font-weight: 900; 
             color: var(--text-primary);
             letter-spacing: 1px;
             text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+            margin: 0;
+            white-space: nowrap; /* Prevent line break */
         }
 
         .scores-wrapper {
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-shrink: 0; /* Keep scores from shrinking too much */
         }
 
         /* Panel Style Score Box */
@@ -96,7 +84,7 @@
             min-width: 70px;
             text-align: right;
             border: 1px solid var(--border-color);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Inset for recessed look */
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); 
         }
         
         .score-label {
@@ -137,7 +125,7 @@
             background-color: var(--panel-bg);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
-            border-radius: 20px; /* Pill shape */
+            border-radius: 20px; 
             padding: 6px 16px;
             font-size: 14px;
             cursor: pointer;
@@ -147,9 +135,10 @@
             justify-content: center;
             gap: 5px;
             white-space: nowrap;
-            /* Button 3D feel */
             box-shadow: 0 2px 0 #111;
             transform: translateY(0);
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 700;
         }
 
         .btn:active {
@@ -161,7 +150,7 @@
             background-color: var(--accent-blue);
             color: white;
             border: none;
-            box-shadow: 0 3px 0 #003d80; /* Blue shadow */
+            box-shadow: 0 3px 0 #003d80; 
         }
         
         .btn-primary:active {
@@ -192,26 +181,33 @@
             transform: none;
         }
 
-        /* Improved Info Button */
+        /* Improved Info Button with Text - No Emoji */
         .info-btn {
             background: #444;
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            border-radius: 16px;
+            padding: 6px 12px;
+            height: auto;
+            width: auto;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 18px;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
             box-shadow: 0 2px 0 #222;
             transition: all 0.1s;
             margin-right: 10px;
+            font-family: 'Noto Sans TC', sans-serif;
         }
         .info-btn:active {
             transform: translateY(2px);
             box-shadow: none;
+        }
+        .info-btn:hover {
+            background-color: #555;
         }
 
         /* Game Board */
@@ -225,16 +221,15 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px;
-            /* Deep recess effect */
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1); 
             touch-action: none;
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 10px;
             width: 100%;
             height: 100%;
         }
@@ -260,33 +255,27 @@
         /* 3D Tile Design */
         .tile {
             position: absolute;
-            width: calc(20% - 8px); 
-            height: calc(20% - 8px);
-            border-radius: 10px; /* Slightly more rounded */
+            width: calc(25% - 7.5px); 
+            height: calc(25% - 7.5px);
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: 700;
-            font-size: 24px;
+            font-size: 28px;
             color: white;
             text-align: center;
             transition: transform 0.08s ease-in-out, opacity 0.08s ease;
             animation: appear 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
-            
-            /* The 3D Thickness Effect */
             box-shadow: 
-                0 4px 0 rgba(0,0,0,0.3), /* The "side" of the tile */
-                0 5px 5px rgba(0,0,0,0.4); /* The shadow on the board */
-            
+                0 4px 0 rgba(0,0,0,0.3),
+                0 5px 5px rgba(0,0,0,0.4);
             background-color: #333;
             overflow: hidden;
-            
-            /* Slight transform to emphasize perspective if desired, but 2D shift is safer for alignment */
             transform-origin: center bottom;
         }
 
-        /* The Gloss/Shine Effect */
         .tile::after {
             content: '';
             position: absolute;
@@ -313,24 +302,22 @@
         .tile.fallback-mode .tile-text { display: block; }
         .tile.fallback-mode img { display: none; }
 
-        /* Jelly / Bounce Animation on Merge */
         .tile.merged {
             z-index: 10;
             animation: jelly-pop 0.3s ease;
         }
 
-        /* Q-Bounce (Jelly) Physics Animation */
         @keyframes jelly-pop {
             0% { transform: scale(1); }
-            30% { transform: scale(1.25); } /* Rapid expansion */
-            50% { transform: scale(0.9); }  /* Elastic recoil */
-            70% { transform: scale(1.05); } /* Settle */
+            30% { transform: scale(1.25); } 
+            50% { transform: scale(0.9); }  
+            70% { transform: scale(1.05); } 
             100% { transform: scale(1); }
         }
 
         @keyframes appear { 
             0% { opacity: 0; transform: scale(0); } 
-            70% { opacity: 1; transform: scale(1.1); } /* Overshoot for new tiles too */
+            70% { opacity: 1; transform: scale(1.1); } 
             100% { opacity: 1; transform: scale(1); } 
         }
 
@@ -395,7 +382,7 @@
             width: 36px; height: 36px; 
             border-radius: 8px; 
             object-fit: cover; 
-            box-shadow: 0 2px 0 rgba(0,0,0,0.5); /* Mini 3D for list */
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5);
             margin-right: 15px;
         }
         .evo-info { flex-grow: 1; display: flex; flex-direction: column; }
@@ -427,7 +414,7 @@
         .key-icon {
             display: inline-block;
             border: 1px solid #555;
-            border-bottom: 3px solid #333; /* Key 3D effect */
+            border-bottom: 3px solid #333;
             border-radius: 4px;
             padding: 2px 6px;
             font-family: monospace;
@@ -455,7 +442,7 @@
         .tile-1024.fallback-mode { background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); }
 
         @media (max-width: 520px) {
-            .tile { font-size: 18px; }
+            .tile { font-size: 22px; }
             .header-container { flex-direction: column; align-items: flex-start; gap: 10px; }
             .scores-wrapper { width: 100%; justify-content: space-between; }
             .score-box { flex: 1; text-align: center; }
@@ -468,13 +455,10 @@
 
     <div class="header-container">
         <div class="brand-area">
-            <div class="adobe-logo">
-                <img src="https://adbeweblink.github.io/myproject/images/CC.png" alt="CC">
-            </div>
-            <div class="game-title">奧多比碰碰樂 (5x5)</div>
+            <h1 class="game-title">奧多比碰碰樂</h1>
         </div>
         <div class="scores-wrapper">
-            <button class="info-btn" onclick="game.showEvolution()" title="查看圖鑑">ℹ️</button>
+            <button class="info-btn" onclick="game.showEvolution()">進化圖鑑</button>
             <div class="score-box">
                 <div class="score-label">分數</div>
                 <div class="score-value" id="score">0</div>
@@ -497,18 +481,18 @@
 
     <div id="game-container">
         <div class="grid-container">
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <!-- 4x4 Grid (16 cells) -->
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
         </div>
         <div class="tile-container" id="tile-container"></div>
 
         <!-- Game Over Overlay -->
         <div class="overlay" id="game-over">
             <div class="overlay-text">遊戲結束</div>
-            <div class="overlay-subtext">別氣餒！您可以選擇接關繼續挑戰<br>(每局限用一次，消除最底層)</div>
+            <div class="overlay-subtext">別氣餒！你可以選擇接關繼續挑戰<br>(每局限用一次，消除最底層)</div>
             
             <button class="btn btn-revive" id="revive-btn" onclick="game.revive()">📺 觀看廣告/分享接關</button>
             <button class="btn" style="margin-top:15px; background:transparent; border:none; text-decoration:underline; color:#888;" onclick="game.restart()">放棄，重新開始</button>
@@ -598,7 +582,6 @@
                     gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now+0.1);
                     osc.start(now); osc.stop(now+0.1);
                 } else if (type === 'merge') {
-                    // Bouncier sound for merge
                     osc.type = 'triangle'; 
                     osc.frequency.setValueAtTime(300, now); 
                     osc.frequency.linearRampToValueAtTime(600, now+0.1);
@@ -628,10 +611,10 @@
 
         class Game2048 {
             constructor() {
-                this.gridSize = 5;
+                this.gridSize = 4;
                 this.grid = [];
                 this.score = 0;
-                this.bestScore = localStorage.getItem('adobe_pong_best_5x5') || 0;
+                this.bestScore = localStorage.getItem('adobe_pong_best_4x4') || 0;
                 this.over = false;
                 this.won = false;
                 this.keepPlaying = false;
@@ -639,16 +622,16 @@
                 this.sound = new SoundManager();
                 
                 this.iconMap = {
-                    2: { text: 'Dc', url: 'https://adbeweblink.github.io/myproject/images/Dc.png' }, 
-                    4: { text: 'Fi', url: 'https://adbeweblink.github.io/myproject/images/fl.png' }, 
-                    8: { text: 'Ex', url: 'https://adbeweblink.github.io/myproject/images/Express.png' }, 
-                    16: { text: 'Lr', url: 'https://adbeweblink.github.io/myproject/images/lr.png' }, 
-                    32: { text: 'Ps', url: 'https://adbeweblink.github.io/myproject/images/ps.png' }, 
-                    64: { text: 'Ai', url: 'https://adbeweblink.github.io/myproject/images/Ai.png' }, 
-                    128: { text: 'Id', url: 'https://adbeweblink.github.io/myproject/images/Id.png' }, 
-                    256: { text: 'Pr', url: 'https://adbeweblink.github.io/myproject/images/Pr.png' }, 
-                    512: { text: 'Ae', url: 'https://adbeweblink.github.io/myproject/images/Ae.png' }, 
-                    1024: { text: 'CC', url: 'https://adbeweblink.github.io/myproject/images/CC.png' }
+                    2: { text: 'Dc', fullName: 'Adobe Acrobat', url: 'https://adbeweblink.github.io/myproject/images/Dc.png' }, 
+                    4: { text: 'Fi', fullName: 'Adobe Firefly', url: 'https://adbeweblink.github.io/myproject/images/fl.png' }, 
+                    8: { text: 'Ex', fullName: 'Adobe Express', url: 'https://adbeweblink.github.io/myproject/images/Express.png' }, 
+                    16: { text: 'Lr', fullName: 'Adobe Lightroom', url: 'https://adbeweblink.github.io/myproject/images/lr.png' }, 
+                    32: { text: 'Ps', fullName: 'Adobe Photoshop', url: 'https://adbeweblink.github.io/myproject/images/ps.png' }, 
+                    64: { text: 'Ai', fullName: 'Adobe Illustrator', url: 'https://adbeweblink.github.io/myproject/images/Ai.png' }, 
+                    128: { text: 'Id', fullName: 'Adobe InDesign', url: 'https://adbeweblink.github.io/myproject/images/Id.png' }, 
+                    256: { text: 'Pr', fullName: 'Adobe Premiere Pro', url: 'https://adbeweblink.github.io/myproject/images/Pr.png' }, 
+                    512: { text: 'Ae', fullName: 'Adobe After Effects', url: 'https://adbeweblink.github.io/myproject/images/Ae.png' }, 
+                    1024: { text: 'CC', fullName: 'Adobe Creative Cloud', url: 'https://adbeweblink.github.io/myproject/images/CC.png' }
                 };
 
                 this.tileContainer = document.getElementById('tile-container');
@@ -688,7 +671,9 @@
                 
                 Object.values(this.overlays).forEach(el => el.classList.remove('active'));
                 
-                this.msgDisplay.textContent = "準備好開始創作了嗎？";
+                // Change status message to be descriptive
+                this.msgDisplay.textContent = "合併圖標，解鎖全套軟體！";
+                
                 this.reviveBtn.disabled = false;
                 this.reviveBtn.innerHTML = "📺 觀看廣告/分享接關";
                 
@@ -705,9 +690,8 @@
                 this.reviveBtn.disabled = true;
 
                 setTimeout(() => {
-                    // Remove bottom row
                     for (let c = 0; c < this.gridSize; c++) {
-                        this.grid[4][c] = null;
+                        this.grid[3][c] = null;
                     }
 
                     this.reviveUsed = true;
@@ -720,17 +704,17 @@
             }
             
             saveScore() {
-                let scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_5x5') || '[]');
+                let scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_4x4') || '[]');
                 const now = new Date();
                 const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
                 scores.push({ score: this.score, date: dateStr });
                 scores.sort((a,b) => b.score - a.score);
                 scores = scores.slice(0, 5);
-                localStorage.setItem('adobe_pong_leaderboard_5x5', JSON.stringify(scores));
+                localStorage.setItem('adobe_pong_leaderboard_4x4', JSON.stringify(scores));
             }
             
             showLeaderboard() {
-                const scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_5x5') || '[]');
+                const scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_4x4') || '[]');
                 const listEl = document.getElementById('leaderboard-list');
                 listEl.innerHTML = '';
                 
@@ -764,7 +748,7 @@
                         <div class="evo-row">
                             <img src="${info.url}" class="evo-icon" onerror="this.style.display='none'">
                             <div class="evo-info">
-                                <span class="evo-name">${info.text}</span>
+                                <span class="evo-name">${info.fullName}</span>
                                 <span class="evo-score">Score: ${val}</span>
                             </div>
                             ${index < values.length - 1 ? '<span class="evo-arrow">▼</span>' : ''}
@@ -796,7 +780,7 @@
             }
 
             shareResult(btn) {
-                const text = `我在奧多比碰碰樂 (5x5) 獲得了 ${this.score} 分！成功解鎖全套 Adobe Creative Cloud！快來挑戰！`;
+                const text = `我在奧多比碰碰樂獲得了 ${this.score} 分！成功解鎖全套 Adobe Creative Cloud！快來挑戰！`;
                 if (navigator.share) {
                     navigator.share({
                         title: '奧多比碰碰樂',
@@ -870,7 +854,7 @@
                         if (!this.movesAvailable()) {
                             this.over = true;
                             if(this.score > this.bestScore) {
-                                localStorage.setItem('adobe_pong_best_5x5', this.score);
+                                localStorage.setItem('adobe_pong_best_4x4', this.score);
                             }
                             
                             this.sound.play('gameover');
@@ -937,7 +921,7 @@
                 this.scoreDisplay.textContent = this.score;
                 if (this.score > this.bestScore) {
                     this.bestScore = this.score;
-                    localStorage.setItem('adobe_pong_best_5x5', this.bestScore);
+                    localStorage.setItem('adobe_pong_best_4x4', this.bestScore);
                 }
                 this.bestScoreDisplay.textContent = this.bestScore;
             }
@@ -977,8 +961,8 @@
 
         const style = document.createElement("style");
         let css = "";
-        for(let x=0; x<5; x++) for(let y=0; y<5; y++) {
-            css += `.tile-pos-${x}-${y} { left: calc(20% * ${x} + ${x*2}px); top: calc(20% * ${y} + ${y*2}px); }`;
+        for(let x=0; x<4; x++) for(let y=0; y<4; y++) {
+            css += `.tile-pos-${x}-${y} { left: calc(25% * ${x} + ${x*2.5}px); top: calc(25% * ${y} + ${y*2.5}px); }`;
         }
         style.innerText = css;
         document.head.appendChild(style);
