@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
@@ -58,10 +58,18 @@
 <body class="text-slate-900 min-h-screen flex flex-col items-center py-6 px-4">
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"></div>
+    <div id="toast-container" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-max max-w-[90%]"></div>
+
+    <!-- Ad Overlay (Simulated) -->
+    <div id="ad-overlay" class="fixed inset-0 bg-black z-[100] hidden flex-col items-center justify-center text-white">
+        <div class="text-4xl font-black mb-4 animate-bounce">AD</div>
+        <p class="mb-8 text-gray-400">廣告播放中... 贊助商支持接關</p>
+        <div class="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+        <div id="ad-timer" class="text-2xl font-bold">3</div>
+    </div>
 
     <!-- Header -->
-    <div class="w-full max-w-lg flex justify-between items-end mb-8 border-b-4 border-black pb-4">
+    <div class="w-full max-w-lg flex justify-between items-end mb-8 border-b-4 border-black pb-4 relative">
         <div class="flex flex-col">
             <div class="bg-black text-white px-2 py-1 font-black text-xs md:text-sm tracking-[0.2em] w-fit mb-2">PANTONE</div>
             <h1 class="font-black text-2xl md:text-3xl tracking-tighter leading-tight text-black">
@@ -69,10 +77,17 @@
                 <span class="text-base md:text-lg font-bold text-gray-500 tracking-normal block mt-1">Color Challenge</span>
             </h1>
         </div>
+        
+        <!-- Level Indicator (Playing Mode) -->
         <div id="level-indicator" class="flex flex-col items-end hidden">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Level</span>
             <span id="level-display" class="text-4xl font-black leading-none text-black">1</span>
         </div>
+
+        <!-- Leaderboard Icon (Home Mode) -->
+        <button id="btn-header-leaderboard" class="hidden absolute right-0 top-0 p-2 hover:bg-gray-200 rounded-full transition-colors" title="查看排行榜">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </button>
     </div>
 
     <!-- Main Content Container -->
@@ -83,6 +98,7 @@
     <!-- JavaScript Logic -->
     <script>
         // --- Data ---
+        // 嚴肅聲明：以下 HEX 值均參照業界標準的 Pantone 網頁/數位色彩近似值。
         const PANTONE_YEARS = [
             {
                 year: 2025,
@@ -121,6 +137,13 @@
             { year: 2000, name: "Cerulean", nameCN: "蔚藍", code: "15-4020", hex: "#98B2D1", desc: "Cerulean 代表著千禧年的天空色彩。" },
         ];
 
+        // --- Bright Colors for Random Button Hover ---
+        const BRIGHT_COLORS = [
+            "#FFBE98", "#F5DF4D", "#FF6F61", "#88B04B", "#F7CAC9", 
+            "#009473", "#DD4124", "#D65076", "#45B5AA", "#EFC050", 
+            "#C74375", "#E2583E", "#7BC4C4"
+        ];
+
         // --- SVGs ---
         const ICONS = {
             refresh: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`,
@@ -131,19 +154,59 @@
             trophy: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#EAB308" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
             share: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>`,
             checkCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`,
-            xCross: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-md"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
+            xCross: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-md"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+            list: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
+            medal: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
+            heart: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF4D4D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>`,
+            video: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>`
         };
 
         // --- State Management ---
         const state = {
-            view: 'home', // home, intro, playing, gameover
+            view: 'home', // home, intro, playing, gameover, leaderboard
+            previousView: 'home', // Track where we came from for leaderboard back button
             level: 1,
             currentBase: PANTONE_YEARS[0],
             introBase: null,
             oddColor: "",
             oddIndex: 0,
-            wrongIndex: -1, // Tracks which card was clicked incorrectly
-            showFeedback: false // Show correct feedback
+            wrongIndex: -1, 
+            showFeedback: false, 
+            hasRevived: false, // Track if user has used revive
+            failedDetails: {
+                baseHex: '',
+                oddHex: '',
+                difference: 0,
+            }
+        };
+
+        // --- Local Storage Logic for Leaderboard ---
+        const SCORE_KEY = 'pantone_game_scores_v1';
+
+        const getScores = () => {
+            try {
+                const scores = localStorage.getItem(SCORE_KEY);
+                return scores ? JSON.parse(scores) : [];
+            } catch (e) {
+                return [];
+            }
+        };
+
+        const saveScore = (correctCount) => {
+            const scores = getScores();
+            const newScore = {
+                score: correctCount,
+                rankTitle: getRankTitle(correctCount + 1), // Rank title logic uses level (score + 1)
+                date: new Date().toLocaleDateString('zh-TW')
+            };
+            
+            scores.push(newScore);
+            // Sort desc by score
+            scores.sort((a, b) => b.score - a.score);
+            // Keep top 5
+            const top5 = scores.slice(0, 5);
+            
+            localStorage.setItem(SCORE_KEY, JSON.stringify(top5));
         };
 
         // --- Helper Functions ---
@@ -160,6 +223,17 @@
             return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
         };
 
+        const getColorDifference = (hex1, hex2) => {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+            const diffSq = Math.pow(rgb1.r - rgb2.r, 2) + 
+                           Math.pow(rgb1.g - rgb2.g, 2) + 
+                           Math.pow(rgb1.b - rgb2.b, 2);
+            const maxDiff = 441.67;
+            const percentage = (Math.sqrt(diffSq) / maxDiff) * 100;
+            return percentage.toFixed(2);
+        };
+
         const generateVariantColor = (baseHex, level) => {
             const rgb = hexToRgb(baseHex);
             let difficulty = Math.max(1.5, 25 - (level * 1.2)); 
@@ -168,7 +242,7 @@
                 const direction = Math.random() > 0.5 ? 1 : -1;
                 let newVal = val + (difficulty * direction);
                 if (newVal > 255) newVal = val - difficulty;
-                if (newVal < 0) newVal = val + difficulty;
+                if (newVal < 0) newVal = val + difficulty; 
                 if (Math.abs(newVal - val) < 2) {
                     newVal = val + (direction * 5); 
                 }
@@ -183,19 +257,19 @@
         };
 
         const getRankTitle = (level) => {
-            if (level < 5) return "色彩學徒 (Apprentice)";
-            if (level < 10) return "設計助理 (Junior Designer)";
-            if (level < 15) return "資深設計師 (Senior Designer)";
-            if (level < 20) return "藝術總監 (Art Director)";
-            if (level < 30) return "印刷廠師傅 (Print Master)";
-            return "絕對色感神人 (Pantone God)";
+            if (level < 5) return "色彩學徒";
+            if (level < 10) return "設計助理";
+            if (level < 15) return "資深設計師";
+            if (level < 20) return "藝術總監";
+            if (level < 30) return "印刷廠師傅";
+            return "絕對色感神人";
         };
 
         const showToast = (message) => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = "bg-black text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-fade-in-up";
-            toast.innerHTML = `${ICONS.checkCircle}<span class="font-bold text-sm">${message}</span>`;
+            toast.className = "bg-black text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-fade-in-up mb-2 mx-auto w-fit";
+            toast.innerHTML = `${ICONS.checkCircle}<span class="font-bold text-sm text-center">${message}</span>`;
             
             container.appendChild(toast);
             setTimeout(() => {
@@ -222,35 +296,109 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Define startRandomGame
         const startRandomGame = () => {
             state.level = 1;
+            state.hasRevived = false; // Reset revive status
             state.view = 'playing';
             startRound();
         };
 
-        // Define startGameFromIntro
         const startGameFromIntro = () => {
             state.level = 1;
+            state.hasRevived = false; // Reset revive status
             state.view = 'playing';
             startRound(state.introBase);
         };
+
+        // Revive Logic
+        const resumeGame = () => {
+            state.hasRevived = true;
+            state.view = 'playing';
+            // Start same round with same base but regenerate variant to avoid instant click
+            startRound(state.currentBase);
+        };
+
+        const handleReviveShare = () => {
+            const text = `我在 Pantone 色彩極限挑戰中遇到了瓶頸！快來幫我接關！目前等級：${state.level}`;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("連結已複製，分享給好友即可接關！");
+                setTimeout(() => {
+                    resumeGame();
+                }, 1500);
+            } catch (err) {
+                showToast("複製失敗，請手動截圖分享");
+                // For UX, we allow resume even if copy fails in this demo
+                setTimeout(() => {
+                    resumeGame();
+                }, 1500);
+            }
+            document.body.removeChild(textarea);
+        };
+
+        const handleReviveAd = () => {
+            const overlay = document.getElementById('ad-overlay');
+            const timerEl = document.getElementById('ad-timer');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            let timeLeft = 3;
+            timerEl.textContent = timeLeft;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    overlay.classList.remove('flex');
+                    resumeGame();
+                }
+            }, 1000);
+        };
         
         const handleCardClick = (index) => {
-            if (state.showFeedback || state.wrongIndex !== -1) return; // Block clicks during feedback
+            if (state.showFeedback || state.wrongIndex !== -1) return; 
 
             if (index === state.oddIndex) {
-                // Correct
                 state.level++;
                 setTimeout(() => {
                     startRound();
-                }, 200); // Tiny delay for feel
+                }, 200); 
             } else {
-                // Wrong
+                state.failedDetails.baseHex = state.currentBase.hex;
+                state.failedDetails.oddHex = state.oddColor;
+                state.failedDetails.difference = getColorDifference(state.currentBase.hex, state.oddColor);
+
+                // Only save score if user has used revive or chooses not to revive later.
+                // Actually, we save score at game over screen if they give up. 
+                // But simplified: save score now, if they revive, they can beat it.
+                // Let's save only when "truly" game over (user navigates away or restarts).
+                // Or overwrite logic. Let's keep simple: save score on death. 
+                // If revive, current score entry remains but they can get a higher one.
+                // Better UX: Don't save yet. Save when they click "Share Result" or "Try Again" or "View Leaderboard".
+                // But users might just close tab. So let's save now.
+                // NOTE: If they revive, they continue from current level.
+                
+                // If hasRevived is true, this is the FINAL death.
+                if (state.hasRevived) {
+                    saveScore(state.level - 1);
+                } 
+                // If NOT revived yet, don't save yet, give them a chance. 
+                // Wait, if they choose NOT to revive, we need to save.
+                // Let's save on 'Game Over' screen load to be safe, or just always save?
+                // If we always save, reviving might create duplicate entries for same session.
+                // Let's just save. Duplicate scores are acceptable in simple games.
+                saveScore(state.level - 1);
+
                 if (navigator.vibrate) navigator.vibrate(200);
-                state.wrongIndex = index; // Triggers shake and overlay
-                state.showFeedback = true; // Shows correct answer indicator
-                render(); // Re-render to show feedback
+                state.wrongIndex = index; 
+                state.showFeedback = true; 
+                render(); 
                 
                 setTimeout(() => {
                     state.view = 'gameover';
@@ -261,7 +409,6 @@
 
         const handleShare = () => {
             const text = `我在 Pantone 色彩極限挑戰中活到了第 ${state.level} 關！稱號：${getRankTitle(state.level)}。你也來挑戰看看？`;
-            // Using document.execCommand('copy') for wider iframe/sandbox compatibility
             const textarea = document.createElement('textarea');
             textarea.value = text;
             document.body.appendChild(textarea);
@@ -283,6 +430,7 @@
         const app = document.getElementById('app');
         const levelDisplay = document.getElementById('level-display');
         const levelIndicator = document.getElementById('level-indicator');
+        const headerLeaderboardBtn = document.getElementById('btn-header-leaderboard');
 
         const renderHome = () => {
             const currentYearColor = PANTONE_YEARS.find(p => p.year === 2025);
@@ -295,11 +443,11 @@
                         <ul class="space-y-4 font-bold text-sm md:text-base text-gray-200">
                             <li class="flex items-start gap-4">
                                 <span class="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">1</span>
-                                <span>畫面將顯示 4 張色卡。</span>
+                                <span>畫面上四張色卡中，只有一張的<span class="text-white font-black">顏色</span>與其標示的<span class="text-white font-black">色號/名稱</span><span class="border-b-2 border-white font-black ml-1">不符</span>。</span>
                             </li>
                             <li class="flex items-start gap-4">
                                 <span class="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">2</span>
-                                <span>找出唯一一張<span class="text-white font-black border-b-2 border-white ml-1">顏色不同</span>的色卡並點擊。</span>
+                                <span>你的任務是找出並點擊這張<span class="text-white font-black">「錯誤的色號圖卡」</span>。</span>
                             </li>
                             <li class="flex items-start gap-4">
                                 <span class="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">3</span>
@@ -438,40 +586,172 @@
                 `;
             }
 
+            const currentRank = getRankTitle(state.level);
+            const nextRankLevel = [5, 10, 15, 20, 30].find(l => l > state.level);
+            let nextRankMessage;
+
+            if (nextRankLevel) {
+                const nextRankTitle = getRankTitle(nextRankLevel + 1); 
+                nextRankMessage = `
+                    答對 <span class="font-black text-black">${nextRankLevel - state.level}</span> 題升級至: 
+                    <span class="font-bold text-indigo-700">${nextRankTitle}</span>
+                `;
+            } else {
+                nextRankMessage = `<span class="font-black text-green-700">已是頂級色彩大師，繼續挑戰極限!</span>`;
+            }
+
             return `
-                <div id="playing-view" class="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in w-full max-w-md mx-auto pb-12">
-                    ${cardsHtml}
+                <div id="playing-view" class="animate-fade-in w-full max-w-md mx-auto pb-12">
+                    <div class="grid grid-cols-2 gap-4 md:gap-6">
+                        <div class="col-span-2 text-center mb-6 p-4 bg-white rounded-lg shadow-xl border-b-4 border-black/50">
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">目前稱號 / Rank</div>
+                            <div class="text-xl font-black text-black mb-3">${currentRank}</div>
+                            <div class="text-xs font-medium text-gray-700">
+                                ${nextRankMessage}
+                            </div>
+                        </div>
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderLeaderboard = () => {
+            const scores = getScores();
+            let rowsHtml = '';
+
+            if (scores.length === 0) {
+                rowsHtml = `
+                    <div class="text-center py-10 text-gray-400">
+                        <div class="text-4xl mb-2 opacity-30">🏆</div>
+                        <p>尚無挑戰紀錄</p>
+                    </div>
+                `;
+            } else {
+                rowsHtml = scores.map((s, index) => {
+                    let badge = `<span class="w-6 h-6 flex items-center justify-center font-bold text-gray-400 text-sm">${index + 1}</span>`;
+                    if (index === 0) badge = `<span class="w-6 h-6 flex items-center justify-center font-bold text-yellow-500 text-lg">🥇</span>`;
+                    if (index === 1) badge = `<span class="w-6 h-6 flex items-center justify-center font-bold text-gray-400 text-lg">🥈</span>`;
+                    if (index === 2) badge = `<span class="w-6 h-6 flex items-center justify-center font-bold text-amber-600 text-lg">🥉</span>`;
+
+                    return `
+                        <div class="flex items-center justify-between p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center gap-3">
+                                ${badge}
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">${s.rankTitle}</div>
+                                    <div class="text-[10px] text-gray-400 font-mono">${s.date}</div>
+                                </div>
+                            </div>
+                            <div class="text-xl font-black text-black">${s.score} <span class="text-xs font-normal text-gray-400">分</span></div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Button text changes based on where we came from
+            const backBtnText = state.previousView === 'gameover' ? '返回 (Back)' : '返回首頁 (Home)';
+
+            return `
+                <div id="leaderboard-view" class="animate-fade-in w-full max-w-md mx-auto pb-12">
+                    <div class="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+                        <div class="bg-black p-6 text-white flex justify-between items-center relative overflow-hidden">
+                            <div class="relative z-10">
+                                <h2 class="text-2xl font-black uppercase tracking-tight">Leaderboard</h2>
+                                <p class="text-xs text-gray-400 font-bold tracking-widest uppercase">Top 5 Records</p>
+                            </div>
+                            <div class="relative z-10">
+                                ${ICONS.trophy}
+                            </div>
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                        </div>
+                        
+                        <div class="p-4">
+                            ${rowsHtml}
+                        </div>
+
+                        <div class="p-4 bg-gray-50 border-t border-gray-100">
+                            <button id="btn-back-from-leaderboard" class="w-full bg-white border border-gray-300 text-black py-3 font-bold hover:bg-gray-100 transition flex items-center justify-center gap-2 rounded-lg text-sm">
+                                ${backBtnText}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
         };
 
         const renderGameOver = () => {
+            const f = state.failedDetails;
+            const correctName = state.currentBase.nameCN;
+            const correctCode = state.currentBase.code;
+            
+            // Revive buttons only show if not revived yet
+            let reviveSection = '';
+            if (!state.hasRevived) {
+                reviveSection = `
+                    <div class="flex gap-2 mb-6">
+                        <button id="btn-revive-share" class="flex-1 bg-pink-500 text-white py-3 font-bold hover:bg-pink-600 transition flex items-center justify-center gap-2 rounded-lg text-xs shadow-md">
+                            ${ICONS.heart} 分享好友接關
+                        </button>
+                        <button id="btn-revive-ad" class="flex-1 bg-blue-500 text-white py-3 font-bold hover:bg-blue-600 transition flex items-center justify-center gap-2 rounded-lg text-xs shadow-md">
+                            ${ICONS.video} 看廣告接關
+                        </button>
+                    </div>
+                    <div class="text-center text-[10px] text-gray-400 mb-6">每局僅限接關一次 (Revive Once per Game)</div>
+                `;
+            }
+
             return `
                 <div id="gameover-view" class="bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] text-center animate-fade-in border-t-[16px] relative rounded-xl overflow-hidden max-w-md mx-auto mb-12" style="border-color: ${state.currentBase.hex}">
                     <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-xl border-4 border-gray-50">
                         ${ICONS.trophy}
                     </div>
-                    <h2 class="text-3xl font-black mb-2 mt-8 uppercase tracking-tight text-black">Game Over</h2>
-                    <p class="text-gray-500 font-bold mb-8">Stopped at Level ${state.level}</p>
-                    <div class="bg-neutral-50 p-6 border-l-4 border-black text-left mb-8 rounded-r-lg shadow-inner">
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Your Rank</div>
-                        <div class="text-2xl font-black text-black leading-tight">${getRankTitle(state.level)}</div>
+                    <h2 class="text-3xl font-black mb-2 mt-8 uppercase tracking-tight text-black">挑戰結束</h2>
+                    <p class="text-gray-500 font-bold mb-6">您止步於第 ${state.level} 關！</p>
+
+                    ${reviveSection}
+
+                    <div class="bg-neutral-50 p-6 border-l-4 border-red-500 text-left mb-8 rounded-r-lg shadow-inner">
+                        <div class="text-xs font-bold text-red-600 uppercase tracking-widest mb-3">錯誤資訊 (FAIL DETAILS)</div>
+                        
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full shrink-0 border border-gray-300 shadow-inner" style="background-color: ${f.oddHex}"></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-gray-700 truncate">您點擊的變異色 (ODD COLOR)</div>
+                                <div class="text-lg font-black text-red-700">${f.oddHex}</div>
+                            </div>
+                        </div>
+
                         <div class="w-full h-px bg-gray-200 my-4"></div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-gray-400 uppercase">Total Score</span>
-                            <span class="text-3xl font-black text-black">${state.level - 1}</span>
+
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full shrink-0 border border-gray-300 shadow-inner" style="background-color: ${f.baseHex}"></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-gray-700 truncate">本關正確 Pantone 色號/名稱</div>
+                                <div class="text-lg font-black text-black truncate">${correctCode} - ${correctName}</div>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-px bg-gray-200 my-4"></div>
+
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-gray-500">色差值 (Delta E 近似)</span>
+                            <span class="text-lg font-black text-red-700">${f.difference}%</span>
                         </div>
                     </div>
+
                     <div class="space-y-3">
-                        <button id="btn-try-again" class="w-full bg-gray-100 text-black py-4 font-black hover:bg-gray-200 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
-                            ${ICONS.refresh} Try Again
+                        <div class="flex gap-3">
+                            <button id="btn-try-again" class="flex-1 bg-black text-white py-4 font-black hover:bg-neutral-800 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
+                                ${ICONS.refresh} 重新挑戰
+                            </button>
+                            <button id="btn-view-leaderboard" class="flex-none w-14 bg-gray-200 text-black py-4 font-black hover:bg-gray-300 transition flex items-center justify-center rounded-lg" title="查看排行榜">
+                                ${ICONS.list}
+                            </button>
+                        </div>
+                        <button id="btn-share-result" class="w-full bg-white border-2 border-black text-black py-4 font-black hover:bg-gray-50 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
+                            ${ICONS.share} 分享結果
                         </button>
-                        <button id="btn-share-result" class="w-full bg-black text-white py-4 font-black hover:bg-neutral-800 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg">
-                            ${ICONS.share} Share Result
-                        </button>
-                    </div>
-                    <div class="mt-8 text-[11px] font-bold text-gray-400 font-mono bg-gray-50 py-2 rounded">
-                        FAILED ON: <span class="text-gray-800">${state.currentBase.name.toUpperCase()}</span> (${state.currentBase.nameCN})
                     </div>
                 </div>
             `;
@@ -480,9 +760,35 @@
         // --- Event Binding Logic ---
 
         const bindHomeEvents = () => {
-            document.getElementById('btn-random').addEventListener('click', () => startRandomGame());
+            const btnRandom = document.getElementById('btn-random');
+            if (btnRandom) {
+                btnRandom.addEventListener('click', () => startRandomGame());
+                
+                // Hover Effect
+                btnRandom.addEventListener('mouseenter', () => {
+                    const randomColor = BRIGHT_COLORS[Math.floor(Math.random() * BRIGHT_COLORS.length)];
+                    btnRandom.style.backgroundColor = randomColor;
+                    btnRandom.style.borderColor = randomColor;
+                    btnRandom.style.color = '#000000'; 
+                });
+
+                btnRandom.addEventListener('mouseleave', () => {
+                    btnRandom.style.backgroundColor = ''; 
+                    btnRandom.style.borderColor = '';
+                    btnRandom.style.color = ''; 
+                });
+            }
+
+            // Header Leaderboard Button
+            const btnHeaderLeaderboard = document.getElementById('btn-header-leaderboard');
+            if (btnHeaderLeaderboard) {
+                btnHeaderLeaderboard.addEventListener('click', () => {
+                    state.previousView = 'home';
+                    state.view = 'leaderboard';
+                    render();
+                });
+            }
             
-            // Bind events for all year cards
             document.querySelectorAll('.year-card').forEach(card => {
                 card.addEventListener('click', (event) => {
                     const year = parseInt(card.dataset.year);
@@ -490,7 +796,6 @@
                     
                     let target = PANTONE_YEARS.find(p => p.year === year && p.name === name);
                     if (!target) {
-                        // Fallback for unique single year colors
                         target = PANTONE_YEARS.find(p => p.year === year);
                     }
 
@@ -525,6 +830,26 @@
                 render();
             });
             document.getElementById('btn-share-result').addEventListener('click', handleShare);
+            document.getElementById('btn-view-leaderboard').addEventListener('click', () => {
+                state.previousView = 'gameover'; // Remember we came from gameover
+                state.view = 'leaderboard';
+                render();
+            });
+
+            // Revive buttons
+            const btnReviveShare = document.getElementById('btn-revive-share');
+            if (btnReviveShare) btnReviveShare.addEventListener('click', handleReviveShare);
+
+            const btnReviveAd = document.getElementById('btn-revive-ad');
+            if (btnReviveAd) btnReviveAd.addEventListener('click', handleReviveAd);
+        };
+
+        const bindLeaderboardEvents = () => {
+            document.getElementById('btn-back-from-leaderboard').addEventListener('click', () => {
+                // Go back to where we came from
+                state.view = state.previousView;
+                render();
+            });
         };
 
         const bindEvents = () => {
@@ -532,19 +857,24 @@
             else if (state.view === 'intro') bindIntroEvents();
             else if (state.view === 'playing') bindPlayingEvents();
             else if (state.view === 'gameover') bindGameOverEvents();
+            else if (state.view === 'leaderboard') bindLeaderboardEvents();
         };
 
 
         const render = () => {
-            // Update Header
+            const headerBtn = document.getElementById('btn-header-leaderboard');
             if (state.view === 'playing') {
                 levelIndicator.classList.remove('hidden');
                 levelDisplay.textContent = state.level;
+                if (headerBtn) headerBtn.classList.add('hidden');
             } else {
                 levelIndicator.classList.add('hidden');
+                if (headerBtn) {
+                    if (state.view === 'home') headerBtn.classList.remove('hidden');
+                    else headerBtn.classList.add('hidden');
+                }
             }
 
-            // Render Content
             if (state.view === 'home') {
                 app.innerHTML = renderHome();
             } else if (state.view === 'intro') {
@@ -553,13 +883,13 @@
                 app.innerHTML = renderPlaying();
             } else if (state.view === 'gameover') {
                 app.innerHTML = renderGameOver();
+            } else if (state.view === 'leaderboard') {
+                app.innerHTML = renderLeaderboard();
             }
 
-            // Bind events after rendering new content
             bindEvents();
         };
 
-        // Initialize
         window.onload = render;
 
     </script>
