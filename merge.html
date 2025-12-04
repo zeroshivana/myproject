@@ -571,7 +571,7 @@
 
     const FRUITS = [
         { name: 'Adobe Acrobat',    desc: '全球最受信賴的 PDF 解決方案。檢視、編輯、簽署與保護文件。', img: 'https://adbeweblink.github.io/myproject/images/Dc.png',      radius: 20, score: 1, color: '#FF0000' },
-        { name: 'Adobe Firefly',    desc: 'AI 創意生成引擎。輸入文字即可生成驚人圖像。', img: 'https://adbeweblink.github.io/myproject/images/Firefly.png', radius: 28, score: 2, color: '#00D4FF' },
+        { name: 'Adobe Firefly',    desc: 'AI 創意生成引擎。輸入文字即可生成驚人圖像。', img: 'https://adbeweblink.github.io/myproject/images/fl.png', radius: 28, score: 2, color: '#00D4FF' },
         { name: 'Adobe Express',    desc: '萬用內容創作工具。快速製作社群貼文。', img: 'https://adbeweblink.github.io/myproject/images/Express.png', radius: 36, score: 4, color: '#FFCC00' },
         { name: 'Adobe Lightroom',  desc: '攝影師首選雲端服務。隨時隨地編輯相片。', img: 'https://adbeweblink.github.io/myproject/images/lr.png',      radius: 44, score: 6, color: '#31A8FF' },
         { name: 'Adobe Photoshop',  desc: '影像處理代名詞。相片編輯與合成設計。', img: 'https://adbeweblink.github.io/myproject/images/ps.png',      radius: 54, score: 10, color: '#001E36' },
@@ -706,7 +706,7 @@
 
         engine = Engine.create();
         world = engine.world;
-        engine.gravity.y = 1.2;
+        engine.gravity.y = 1.6;
 
         const wallOptions = { isStatic: true, render: { visible: false }, friction: 0.3, frictionStatic: 0.3, restitution: 0.2 };
         const wallThick = 200; 
@@ -874,7 +874,7 @@
             body.renderScale = 1;
             World.add(world, body);
         }
-        setTimeout(() => { spawnNextFruitLogic(); }, 600);
+        setTimeout(() => { spawnNextFruitLogic(); }, 500);
     }
 
     function explodeBomb(bombBody) {
