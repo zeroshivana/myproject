@@ -1,35 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head> 
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Adobe 知識王挑戰賽</title>
   
-  <!-- 1. 錯誤攔截器 (放在最前面，確保能抓到所有錯誤) --> 
+  <!-- 1. 錯誤攔截器 -->
   <script>
     window.onerror = function(msg, url, lineNo, columnNo, error) {
       var debugBox = document.getElementById('debug-console');
       if (debugBox) {
         debugBox.style.display = 'block';
         debugBox.innerHTML += '<div style="margin-bottom:5px; border-bottom:1px solid #444;">' + 
-          '❌ ' + msg + '<br><small>' + url + ':' + lineNo + '</small></div>';
+          '❌ ' + msg + '<br><small>' + (url || 'inline') + ':' + lineNo + '</small></div>';
       }
       return false;
     };
-    // 攔截 Promise 錯誤 (如 async/await 失敗)
     window.addEventListener('unhandledrejection', function(event) {
       var debugBox = document.getElementById('debug-console');
       if (debugBox) {
         debugBox.style.display = 'block';
         debugBox.innerHTML += '<div style="margin-bottom:5px; border-bottom:1px solid #444;">' + 
-          '⚠️ Promise Error: ' + event.reason + '</div>';
+          '⚠️ Promise Error: ' + (event.reason ? event.reason.toString() : 'Unknown') + '</div>';
       }
     });
   </script>
 
   <!-- React / Babel / Tailwind -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -53,11 +52,12 @@
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
+      color: white;
     }
     
     /* 除錯視窗樣式 */
     #debug-console {
-      display: none; /* 預設隱藏，有錯才顯示 */
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -70,7 +70,7 @@
       padding: 10px;
       font-size: 12px;
       font-family: monospace;
-      pointer-events: none; /* 讓點擊穿透 */
+      pointer-events: none;
     }
 
     .touch-highlight {
@@ -174,6 +174,8 @@
         color: white;
         font-size: 14px;
         opacity: 0.7;
+        text-align: center;
+        width: 100%;
     }
   </style>
 </head>
@@ -182,9 +184,12 @@
   <!-- 除錯視窗 -->
   <div id="debug-console"></div>
   
-  <!-- Root 容器 (預設顯示載入中) -->
+  <!-- Root 容器 -->
   <div id="root">
-      <div id="loading-text">正在載入遊戲資源...</div>
+      <div id="loading-text">
+        Loading...<br>
+        <span style="font-size:12px; opacity:0.5;">若停留過久請重新整理</span>
+      </div>
   </div>
 
   <script type="text/babel">
@@ -201,10 +206,8 @@
     // 機器人 ID
     const LINE_BOT_BASIC_ID = "@adbe_weblink"; 
 
-    // 封面圖
     const COVER_IMAGE = "fengmian.jpg";
 
-    // 題目資料
     const QUESTIONS = [
       {
         id: 1,
@@ -268,16 +271,14 @@
       const [lastIsCorrect, setLastIsCorrect] = React.useState(false);
       const [isLock, setIsLock] = React.useState(false);
 
-      // 點擊區百分比
       const [topPercent, setTopPercent] = React.useState(INIT_TOP);
       const [heightPercent, setHeightPercent] = React.useState(INIT_HEIGHT);
       const [leftPercent, setLeftPercent] = React.useState(INIT_LEFT);
       const [widthPercent, setWidthPercent] = React.useState(INIT_WIDTH);
 
-      // 初始化 LIFF (增加防呆)
+      // 初始化 LIFF
       React.useEffect(() => {
         const initLiff = async () => {
-          // 檢查 window.liff 是否存在
           if (!window.liff) {
              console.warn("LIFF SDK not loaded yet.");
              return;
@@ -287,43 +288,45 @@
             await liff.init({ liffId: LIFF_ID });
             setLiffInitialized(true);
             
-            if (!liff.isLoggedIn()) {
-              liff.login();
-            } else {
-              const profile = await liff.getProfile();
-              setUserName(profile.displayName);
+            if (liff.isLoggedIn()) {
+              try {
+                const profile = await liff.getProfile();
+                setUserName(profile.displayName);
+              } catch (e) {
+                console.warn("Get Profile Failed", e);
+              }
             }
           } catch (error) {
             console.error("LIFF Init Failed:", error);
-            // 可以在這裡顯示錯誤給使用者看，但為了不影響遊戲進行，先只記錄
           }
         };
-        initLiff();
+        setTimeout(initLiff, 100);
       }, []);
 
       // 🎉 100 分時觸發彩帶
       React.useEffect(() => {
         if (gameState !== "result" || score !== 100) return;
-        if (!window.confetti) return;
-
-        try {
-            const confetti = window.confetti;
-            confetti({
-              particleCount: 50,
-              angle: 60,
-              spread: 55,
-              origin: { x: 0, y: 1 },
-              ticks: 120
-            });
-            confetti({
-              particleCount: 50,
-              angle: 120,
-              spread: 55,
-              origin: { x: 1, y: 1 },
-              ticks: 120
-            });
-        } catch(e) {
-            console.error("Confetti error", e);
+        
+        if (typeof window.confetti === 'function') {
+          try {
+              const confetti = window.confetti;
+              confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0, y: 1 },
+                ticks: 120
+              });
+              confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1, y: 1 },
+                ticks: 120
+              });
+          } catch(e) {
+              console.error("Confetti error", e);
+          }
         }
       }, [gameState, score]);
 
@@ -373,7 +376,6 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
           return navigator.clipboard.writeText(text);
         } else {
-          // Fallback
           try {
               const textArea = document.createElement("textarea");
               textArea.value = text;
@@ -389,29 +391,34 @@
         }
       };
 
+      // 🏆 領取獎勵：強制使用 sendMessages (不要跳轉畫面)
       const handleClaimReward = async () => {
         if (!liffInitialized) {
-          alert("LIFF 尚未初始化，請重新整理頁面。");
+          alert("LIFF 尚未初始化，請重新整理頁面或稍後再試。");
           return;
         }
 
-        if (LINE_BOT_BASIC_ID === "@your_bot_id") {
-          alert("請設定 LINE_BOT_BASIC_ID！");
-          return;
+        // 1. 檢查是否在 LINE App 內 (LINE Client)
+        if (!liff.isInClient()) {
+            // 如果不在 LINE 內，sendMessages 一定會失敗，直接提示錯誤
+            alert("請在 LINE App 中開啟此頁面，才能自動傳送領獎訊息！");
+            return;
         }
-
-        const botId = LINE_BOT_BASIC_ID.replace("@", ""); 
-        const encodedText = encodeURIComponent(PASS_CODE);
-        const lineUrl = `https://line.me/R/oaMessage/@${botId}/?text=${encodedText}`;
-
+        
+        // 2. 嘗試直接傳送 (Happy Path)
         try {
-           await liff.openWindow({
-             url: lineUrl,
-             external: false 
-           });
-        } catch (e) {
-           console.error("LIFF openWindow failed, trying location.href", e);
-           window.location.href = lineUrl;
+            await liff.sendMessages([{
+                type: 'text',
+                text: PASS_CODE
+            }]);
+            
+            // 發送成功，直接關閉視窗，乾淨俐落
+            liff.closeWindow(); 
+        } catch (error) {
+            console.error("sendMessages failed", error);
+            // 3. 失敗處理 (例如使用者沒開 chat_message.write 權限)
+            // 依照您的要求，不要使用 URL Scheme 預填跳轉，改為直接提示
+            alert("自動傳送失敗！\n請檢查 LINE Developers 後台是否已開啟 'chat_message.write' 權限。");
         }
       };
 
