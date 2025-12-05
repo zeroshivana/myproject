@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adobe 教育機構方案比較表</title> 
+    <title>Adobe 教育機構方案比較表</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -145,8 +145,8 @@
         <!-- Header -->
         <div id="header-container" class="sticky top-0 z-[60]"></div>
 
-        <!-- Main Content -->
-        <div class="max-w-7xl mx-auto p-1 md:p-6 w-full flex-grow">
+        <!-- Main Content: 加寬到 1600px -->
+        <div class="max-w-[1600px] mx-auto p-1 md:p-6 w-full flex-grow">
             <!-- Print Header (只在列印時出現) -->
             <div class="print-only text-center mb-2 border-b-2 border-adobeRed pb-2">
                 <div class="flex items-center justify-between px-4">
@@ -157,7 +157,7 @@
 
             <!-- Legend (螢幕顯示用) -->
             <div class="no-print mb-6 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start items-center text-xs font-medium text-gray-500 px-2">
-                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
                     <div class="flex items-center text-adobeRed font-bold mr-1.5">
                         <div class="bg-adobeRed text-white rounded px-1.5 py-0.5 text-[10px] flex items-center">
                             <svg class="w-2 h-2 mr-1 fill-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -166,14 +166,14 @@
                     </div>
                     <span>該項目最強優勢</span>
                 </div>
-                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
                     <svg class="w-3 h-3 text-adobeBlue mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
                     <span>點擊格子查看詳解</span>
                 </div>
             </div>
 
             <!-- Comparison Table -->
-            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col w-full">
+            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-300 overflow-hidden flex flex-col w-full">
                 <!-- Grid will be injected here -->
             </div>
             
@@ -209,14 +209,14 @@
     <!-- Contact Modal -->
     <div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="App.closeContactModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none overflow-hidden animate-fade-in">
-            <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none overflow-y-auto max-h-[90vh] animate-fade-in no-scrollbar">
+            <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200 sticky top-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
             <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">教育方案諮詢</h3>
             <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將協助安排專人聯繫。</p>
             <!-- Form -->
             <form id="contact-form" class="space-y-4" onsubmit="App.submitForm(event)">
                 
-                <!-- Honeypot 欄位 (防止機器人) -->
+                <!-- Honeypot -->
                 <div class="hidden" aria-hidden="true">
                     <label for="honeypot_field">請勿填寫此欄位</label>
                     <input type="text" name="_honey" id="honeypot_field" tabindex="-1" autocomplete="off">
@@ -230,7 +230,6 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_school">學校/機構名稱</label>
                     <input type="text" id="c_school" name="school" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="學校全名">
                 </div>
-                <!-- 職務欄位 -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_title">職務</label>
                     <input type="text" id="c_title" name="title" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" placeholder="例如：資訊組長、系辦人員">
@@ -239,7 +238,6 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_email">學校 Email</label>
                     <input type="email" id="c_email" name="email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="name@school.edu.tw">
                 </div>
-                <!-- 手機欄位 -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">手機</label>
                     <input type="tel" id="c_phone" name="phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="0912-345-678">
@@ -253,11 +251,9 @@
                         <option>尚未確定，需要建議</option>
                     </select>
                 </div>
-                <!-- 按鈕 -->
                 <button type="submit" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center">
                     送出 採購方案諮詢 我們將盡快與您聯繫
                 </button>
-                <!-- 隱私權聲明 -->
                 <p class="text-[10px] text-gray-400 text-center mt-2 leading-tight">
                     * 我們重視您的隱私，您的資料僅用於本次方案諮詢聯繫，不會提供給第三方。
                 </p>
@@ -277,7 +273,7 @@
                     note: '電腦教室首選，綁定機器而非個人，多位學生可輪流使用同一台電腦、沒有雲端與AI',
                     license_type: '共用裝置授權\n(Shared Device)', 
                     target_user: '電腦教室、圖書館、\n實習工廠 (公用電腦)', 
-                    desktop_apps: '軟體無提供雲端\n與Firefly服務',
+                    desktop_apps: '軟體無提供雲端與Firefly服務',
                     stock: 'Ｘ', 
                     firefly_img: 'Ｘ',
                     ai_credits: 'Ｘ', 
@@ -337,7 +333,7 @@
                 { key: 'desktop_apps', label: '桌面軟體', icon: 'monitor', section: '授權與部署', description: '包含 Photoshop, Illustrator, Premiere Pro 等 20 多款專業創作軟體。' },
                 { key: 'admin_func', label: '管理功能', icon: 'settings', section: '授權與部署', description: '裝置授權：專注於裝置的打包、部署、授權復原與停用工具。\n指名授權：專注於使用者 Email 帳號的指派與權限管理。', url: 'https://helpx.adobe.com/tw/enterprise/using/admin-console.html' },
                 
-                { key: 'firefly_img', label: 'Firefly標準素材\n無限生成', icon: 'image', section: '創意內容與 AI', description: 'Pro Plus: 支援無限生成 Firefly 標準素材。\nCC EDU: 每月 500 點限制。\n裝置授權: 不包含。', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
+                { key: 'firefly_img', label: 'Firefly標準素材', icon: 'image', section: '創意內容與 AI', description: 'Pro Plus: 支援無限生成 Firefly 標準素材。\nCC EDU: 每月 500 點限制。\n裝置授權: 不包含。', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
                 { key: 'ai_credits', label: 'AI生成式點數', icon: 'zap', section: '創意內容與 AI', description: 'Pro Plus 獨家提供每月 1000 點生成式點數，可用於更進階的 AI 功能。', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
                 { key: 'stock', label: 'Adobe Stock 圖庫', icon: 'image', section: '創意內容與 AI', description: 'Pro Plus 版本獨家包含「無限使用 Adobe Stock 標準素材」。\nCC EDU 僅包含「Adobe Express Premium 上提供的一些免費 Adobe Stock 素材」。', url: 'https://stock.adobe.com/tw/plans' },
                 { key: 'acrobat_ai', label: 'Acrobat AI 助理 ＆\nPDF SPACE', icon: 'file-text', section: '創意內容與 AI', description: '利用 AI 快速摘要 PDF 文件內容。\nPro Plus: Fair Use (合理使用範圍內無限)\n標準 EDU: 僅提供 5 點試用', url: 'https://www.adobe.com/tw/acrobat/generative-ai-pdf.html' },
@@ -395,6 +391,7 @@
                 'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
                 'key': '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
                 'headset': '<path d="M3 11v3a8 8 0 0 0 16 0v-3"/><path d="M14 6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"/><path d="M6 14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2z"/><path d="M18 6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>',
+                'type': '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>', // Aa Icon
                 'info': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>',
                 'x': '<line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>',
                 'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
@@ -415,7 +412,8 @@
                 visiblePlans: { device_license: true, cc_edu: true, cc_pro_plus: true },
                 hideCommon: false,
                 startIndex: 0,
-                columnsToShow: 3
+                columnsToShow: 3,
+                fontSizeIndex: 0 // 0: Standard, 1: Large, 2: Extra Large
             },
 
             init() {
@@ -476,6 +474,11 @@
                 this.render();
             },
 
+            toggleFontSize() {
+                this.state.fontSizeIndex = (this.state.fontSizeIndex + 1) % 3;
+                this.renderGrid();
+            },
+
             isCommon(key) {
                 const active = this.getActivePlans();
                 if (active.length < 2) return false;
@@ -500,19 +503,20 @@
 
                 container.innerHTML = `
                 <div class="bg-adobeBlack text-white shadow-xl sticky top-0 z-[60]">
-                    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div class="max-w-[1600px] mx-auto px-4 py-4 md:py-6 flex flex-col lg:flex-row items-center justify-between gap-4">
                         <div class="flex flex-col items-start justify-center w-full lg:w-auto">
-                             <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-100">Adobe 教育機構方案比較表</h1>
-                             <div class="mt-1 flex flex-col md:flex-row md:items-center text-[10px] text-gray-400 gap-1 md:gap-3">
+                             <h1 class="text-lg md:text-3xl font-bold tracking-tight text-gray-100">Adobe 教育機構方案比較表</h1>
+                             <div class="mt-1 flex flex-col md:flex-row md:items-center text-[10px] text-gray-400 gap-1 md:gap-3 whitespace-nowrap">
                                 <div class="flex items-center">${getIcon('calendar', 'w-3 h-3 mr-1')} <span>製表日期：${AppData.currentDate}</span></div>
                                 <span class="hidden md:inline">|</span><span>供教育機構採購參考，實際內容仍以官網實際公告為主</span>
                              </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2 justify-center lg:justify-end w-full lg:w-auto no-print">
                              <div class="flex items-center bg-[#2A2A2A] rounded-lg p-1 border border-[#333] order-1 lg:order-1">${togglesHtml}</div>
-                             <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] whitespace-nowrap order-2 lg:order-2 ${hideCommonClass}">${getIcon('list-filter', 'w-3 h-3 mr-1.5 ' + (hideCommon ? 'fill-white' : ''))} ${hideCommon?'顯示全部':'只看差異'}</button>
-                             <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] order-3 lg:order-3">${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF</button>
-                             <button onclick="App.openContactModal()" class="flex items-center px-4 py-1.5 bg-adobeRed text-white rounded-lg text-xs font-bold hover:bg-adobeDarkRed transition-colors shadow-md h-[34px] animate-pulse hover:animate-none order-4 lg:order-4">${getIcon('mail', 'w-4 h-4 mr-1.5')} 教育版諮詢</button>
+                             <button onclick="App.toggleFontSize()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] order-2 lg:order-2" title="切換字體大小">${getIcon('type', 'w-4 h-4')}</button>
+                             <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] whitespace-nowrap order-3 lg:order-3 ${hideCommonClass}">${getIcon('list-filter', 'w-3 h-3 mr-1.5 ' + (hideCommon ? 'fill-white' : ''))} ${hideCommon?'顯示全部':'只看差異'}</button>
+                             <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] order-4 lg:order-4">${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF</button>
+                             <button onclick="App.openContactModal()" class="flex items-center px-4 py-1.5 bg-adobeRed text-white rounded-lg text-xs font-bold hover:bg-adobeDarkRed transition-colors shadow-md h-[34px] animate-pulse hover:animate-none order-5 lg:order-5">${getIcon('mail', 'w-4 h-4 mr-1.5')} 教育版諮詢</button>
                         </div>
                     </div>
                 </div>`;
@@ -522,16 +526,32 @@
                 const container = document.getElementById('table-container');
                 const activeAll = this.getActivePlans();
                 const visibleSlice = this.getVisibleSlice();
-                const { columnsToShow, startIndex } = this.state;
+                const { columnsToShow, startIndex, fontSizeIndex } = this.state;
                 
-                // Left Label width
-                const labelWidth = window.innerWidth < 768 ? '110px' : '180px';
-                const gridStyle = `grid-template-columns: ${labelWidth} repeat(${visibleSlice.length}, 1fr); display: grid;`;
+                // Font Size Classes logic (Standard -> Large -> Extra Large)
+                let cellTextClass = "text-xs md:text-sm";
+                let labelTextClass = "text-[11px] md:text-sm";
+                let headerTitleClass = "text-xs md:text-base";
+                
+                if (fontSizeIndex === 1) { // Large
+                    cellTextClass = "text-xs md:text-base";
+                    labelTextClass = "text-[11px] md:text-base";
+                    headerTitleClass = "text-xs md:text-lg";
+                } else if (fontSizeIndex === 2) { // Extra Large
+                    cellTextClass = "text-sm md:text-lg";
+                    labelTextClass = "text-xs md:text-lg";
+                    headerTitleClass = "text-sm md:text-xl";
+                }
+
+                // Left Label width - increased for desktop to prevent overflow
+                const labelWidth = window.innerWidth < 768 ? '110px' : '240px'; 
+                // Grid Template: Ensure minmax(0, 1fr) for strictly equal columns that don't expand with text
+                const gridStyle = `grid-template-columns: ${labelWidth} repeat(${visibleSlice.length}, minmax(0, 1fr)); display: grid;`;
 
                 const canPrev = startIndex > 0;
                 const canNext = startIndex + columnsToShow < activeAll.length;
 
-                let html = `<div class="w-full relative"><div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-200 shadow-sm" style="${gridStyle}"><div class="flex items-center justify-start p-2 pl-4 border-r border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">比較項目</div>`;
+                let html = `<div class="w-full relative"><div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-300 shadow-sm" style="${gridStyle}"><div class="flex items-center justify-start p-2 pl-4 border-r border-gray-300 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">比較項目</div>`;
                 
                 visibleSlice.forEach((plan, idx) => {
                     let preContent = '';
@@ -540,13 +560,13 @@
                     if (idx === visibleSlice.length - 1 && canNext) postContent = `<button onclick="App.nextPage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-1 text-adobeBlack z-30 nav-arrow">${getIcon('chevron-right', 'w-4 h-4')}</button>`;
 
                     // Header Color logic comes from plan.bgColor
-                    html += `<div class="relative p-3 text-center border-r border-gray-200 last:border-r-0 ${plan.bgColor}">
+                    html += `<div class="relative p-3 text-center border-r border-gray-300 last:border-r-0 ${plan.bgColor}">
                         ${preContent} ${postContent}
                         ${plan.isHot ? `<div class="absolute top-1 right-1 z-20"><div class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] px-1.5 py-0.5 rounded shadow-sm font-bold flex items-center">${getIcon('flame', 'w-3 h-3 mr-1 fill-white')} 推薦</div></div>` : ''}
                         <div class="inline-flex items-center px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold mb-1 tracking-wide uppercase ${plan.id === 'cc_pro_plus' ? 'bg-adobeRed text-white' : (plan.id === 'cc_edu' ? 'bg-adobeBlue text-white' : 'bg-gray-200 text-gray-600')}">
                             ${plan.category} ${plan.orientation ? `<span class="mx-1 opacity-60">|</span><span class="text-[9px]">${plan.orientation}</span>` : ''}
                         </div>
-                        <h3 class="text-xs md:text-base font-extrabold text-adobeBlack leading-tight overflow-hidden text-ellipsis whitespace-nowrap">${plan.name}</h3>
+                        <h3 class="${headerTitleClass} font-extrabold text-adobeBlack leading-tight overflow-hidden text-ellipsis break-words">${plan.name}</h3>
                     </div>`;
                 });
                 html += `</div>`;
@@ -563,7 +583,7 @@
                     if (sec === '授權與部署') iconName = 'key';
                     if (sec === '創意內容與 AI') iconName = 'zap';
                     if (sec === '服務與協作') iconName = 'cloud';
-                    html += `<div class="col-span-full bg-white px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-800 flex items-center border-y border-gray-200 uppercase tracking-wider sticky left-0 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" style="grid-column: 1 / -1;">${getIcon(iconName, 'w-3 h-3 mr-2')} ${sec}</div>`;
+                    html += `<div class="col-span-full bg-white px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-800 flex items-center border-y border-gray-300 uppercase tracking-wider sticky left-0 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" style="grid-column: 1 / -1;">${getIcon(iconName, 'w-3 h-3 mr-2')} ${sec}</div>`;
                     
                     groups[sec].forEach(col => {
                         const isCommon = this.isCommon(col.key);
@@ -573,14 +593,15 @@
                         if (isNote) {
                             html += `<div style="${gridStyle}"><div class="bg-adobeBlack border-b border-[#333] border-r border-[#333] p-4 flex items-center justify-center md:justify-start md:pl-6"><div class="flex items-center gap-2"><div class="text-adobeRed">${getIcon('info', 'w-4 h-4')}</div><div class="text-xs md:text-sm font-bold text-white uppercase tracking-wider">總結</div></div></div>`;
                             visibleSlice.forEach(plan => {
-                                html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="text-xs md:text-sm font-black text-white leading-relaxed">${plan.note}</span></div>`;
+                                html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="${cellTextClass} font-black text-white leading-relaxed break-words whitespace-normal min-w-0">${plan.note}</span></div>`;
                             });
                             html += `</div>`;
                             return;
                         }
 
-                        html += `<div class="border-b border-gray-100 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
-                        html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-100 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="text-[11px] md:text-sm font-bold text-gray-700 break-words leading-snug">${col.label}</span></div>`;
+                        html += `<div class="border-b border-gray-300 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
+                        // Key Change: Added min-w-0 and whitespace-normal to prevent flex child overflow and force wrapping
+                        html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-300 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="${labelTextClass} font-bold text-gray-700 break-words leading-snug whitespace-normal min-w-0 flex-1">${col.label}</span></div>`;
                         
                         visibleSlice.forEach(plan => {
                             const val = getPlanVal(plan, col.key);
@@ -607,7 +628,8 @@
                                                 .replace(/Ｘ/g, '<span class="text-gray-300 font-bold text-lg">Ｘ</span>');
 
                             // Content Rendering (Removed Pills)
-                            let contentHtml = `<span class="text-xs md:text-sm text-center block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
+                            // Added break-words and whitespace-normal
+                            let contentHtml = `<span class="${cellTextClass} text-center block whitespace-normal break-words text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
                             
                             // Winner Styling (Red Frame)
                             if (isWin) {
@@ -616,14 +638,15 @@
                                     <div class="absolute -top-2.5 right-1 bg-adobeRed text-white text-[9px] px-1.5 py-0.5 rounded-full flex items-center shadow-sm font-bold tracking-tight">
                                         ${getIcon('star', 'w-2 h-2 mr-1 fill-white')} 優勢
                                     </div>
-                                    <span class="text-adobeRed font-bold text-xs md:text-sm whitespace-pre-line">${displayVal}</span>
+                                    <span class="text-adobeRed font-bold ${cellTextClass} whitespace-normal break-words">${displayVal}</span>
                                 </div>`;
                             } else {
                                 // Non-winner
-                                contentHtml = `<span class="text-xs md:text-sm text-center block whitespace-pre-line text-[#2D2D2D] font-medium">${displayVal}</span>`;
+                                contentHtml = `<span class="${cellTextClass} text-center block whitespace-normal break-words text-[#2D2D2D] font-medium">${displayVal}</span>`;
                             }
                             
-                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-center border-r border-gray-200 last:border-r-0 cursor-pointer ${cellBg}">${contentHtml}</div>`;
+                            // Key Change: Added min-w-0 to data cells as well
+                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-center border-r border-gray-300 last:border-r-0 cursor-pointer min-w-0 ${cellBg}">${contentHtml}</div>`;
                         });
                         html += `</div>`;
                     });
