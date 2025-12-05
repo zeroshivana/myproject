@@ -136,7 +136,7 @@
             
             /* 表格格線優化 */
             .border-b, .border-r {
-                border-color: #ddd !important;
+                border-color: #9ca3af !important; /* gray-400 for print */
             }
             
             /* 推薦框列印樣式優化 */
@@ -155,7 +155,8 @@
         <div id="header-container" class="sticky top-0 z-[60]"></div>
 
         <!-- Main Content -->
-        <div class="max-w-7xl mx-auto p-1 md:p-6 w-full flex-grow">
+        <!-- 修改 max-w-7xl 為 max-w-[1600px] 以增加版幅寬度 -->
+        <div class="w-full max-w-[1600px] mx-auto p-1 md:p-6 flex-grow">
             <!-- Print Header (只在列印時出現) -->
             <div class="print-only text-center mb-2 border-b-2 border-adobeRed pb-2">
                 <div class="flex items-center justify-between px-4">
@@ -166,7 +167,7 @@
 
             <!-- Legend (螢幕顯示用) -->
             <div class="no-print mb-6 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start items-center text-xs font-medium text-gray-500 px-2">
-                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
                     <div class="flex items-center text-adobeRed font-bold mr-1.5">
                         <div class="bg-adobeRed text-white rounded px-1.5 py-0.5 text-[10px] flex items-center">
                             <svg class="w-2 h-2 mr-1 fill-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -175,14 +176,14 @@
                     </div>
                     <span>該項目最強優勢</span>
                 </div>
-                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
                     <svg class="w-3 h-3 text-adobeBlue mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
                     <span>點擊格子查看詳解</span>
                 </div>
             </div>
 
             <!-- Comparison Table -->
-            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col w-full">
+            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-300 overflow-hidden flex flex-col w-full">
                 <!-- Grid will be injected here -->
             </div>
             
@@ -218,7 +219,8 @@
     <!-- Contact Modal -->
     <div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="App.closeContactModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none overflow-hidden animate-fade-in">
+        <!-- 修正：加入 max-h-[90vh] 和 overflow-y-auto 確保視窗不被裁切且可捲動 -->
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none max-h-[90vh] overflow-y-auto animate-fade-in">
             <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
             <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">商業方案諮詢</h3>
             <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將協助評估適合您的企業方案。</p>
@@ -304,7 +306,7 @@
                     firefly_img: '無限生成', sso: 'X', ip_indemnity: 'X', directory_sync: 'X', 
                     encryption_key: 'X', admin_roles: '僅系統管理員', service_access: 'X', cloud_control: 'X', 
                     support: '標準技術支援', security_policy: '標準',
-                    desktop_apps: '✔ (20+ 款\n應用程式)', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
+                    desktop_apps: '✔ (20+ 款應用程式)', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '✔',
                     cloud_service: '✔',
                     pdf_apps: '✔ (Acrobat Pro)',
@@ -320,7 +322,7 @@
                     firefly_img: '無限生成', sso: 'X', ip_indemnity: 'X', directory_sync: 'X', 
                     encryption_key: 'X', admin_roles: '僅系統管理員', service_access: 'X', cloud_control: 'X', 
                     support: '標準技術支援', security_policy: '標準',
-                    desktop_apps: '✔ (20+ 款\n應用程式)', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
+                    desktop_apps: '✔ (20+ 款應用程式)', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '✔',
                     cloud_service: '✔',
                     pdf_apps: '✔ (Acrobat Pro)',
@@ -337,7 +339,7 @@
                     directory_sync: '✔ (自動化同步)', encryption_key: '✔ (專屬金鑰)', admin_roles: '分層管理 (多種角色)', 
                     service_access: '✔ (按群組)', cloud_control: '✔', support: '企業級支援 (可開Case)', 
                     security_policy: '進階管控 (週期/強度)',
-                    desktop_apps: '✔ (20+ 款\n應用程式)', storage: '1TB\n(可集中管理)', admin_console: '完整管理後台', sign: '無限基本\n電子簽署',
+                    desktop_apps: '✔ (20+ 款應用程式)', storage: '1TB\n(可集中管理)', admin_console: '完整管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '✔',
                     cloud_service: '✔',
                     pdf_apps: '✔ (Acrobat Pro)',
@@ -348,7 +350,7 @@
             ],
             columns: [
                 { key: 'desktop_apps', label: '桌面軟體', icon: 'monitor', section: '使用端差異', description: '超過20款應用程式，包括Adobe Photoshop、InDesign、Premiere Pro、Adobe Express和Acrobat Pro。', url: 'https://adbeweblink.github.io/myproject/adbespec2026.html' },
-                { key: 'firefly_img', label: 'Firefly標準素材\n無限生成', icon: 'image', section: '使用端差異', description: 'CC Pro & CC Pro  Plus: 無限生成標準素材\nEnterprise: 提供Firefly進階功能 物件合成/風格套件', url: 'https://helpx.adobe.com/tw/firefly/web/generate-images-with-text-to-image/generate-images-using-text-prompts/image-generation-using-text-descriptions.html' },
+                { key: 'firefly_img', label: 'Firefly標準素材', icon: 'image', section: '使用端差異', description: 'CC Pro & CC Pro  Plus: 無限生成標準素材\nEnterprise: 提供Firefly進階功能 物件合成/風格套件', url: 'https://helpx.adobe.com/tw/firefly/web/generate-images-with-text-to-image/generate-images-using-text-prompts/image-generation-using-text-descriptions.html' },
                 { key: 'firefly_credits', label: 'AI生成式點數', icon: 'zap', section: '使用端差異', description: '每月 4000 點，用於Firefly影片與第三方模型Nano Banana Pro、Flux (影片/音訊/高解析)...', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
                 { key: 'firefly_boards', label: 'Firefly Boards', icon: 'palette', section: '使用端差異', description: '無限存取 Firefly 展示板，探索創意及製作分鏡', url: 'https://helpx.adobe.com/tw/firefly/web/create-mood-boards/firefly-boards/about-firefly-boards.html' },
                 { key: 'stock', label: 'Adobe Stock 圖庫', icon: 'image', section: '使用端差異', description: 'Pro Plus: 支援增長授權 印量無上限\nEnterprise: 支援擴展授權 可商品化販售', url: 'https://stock.adobe.com/tw/license-terms' },
@@ -425,7 +427,8 @@
                 'info': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>',
                 'x': '<line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>',
                 'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
-                'percent': '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+                'percent': '<line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+                'type': '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>'
             };
             const d = paths[name] || '<circle cx="12" cy="12" r="10"/>';
             return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${d}</svg>`;
@@ -441,7 +444,8 @@
                 visiblePlans: { cct_pro: true, cct_pro_plus: true, edition4: true },
                 hideCommon: false,
                 startIndex: 0,
-                columnsToShow: 3
+                columnsToShow: 3,
+                fontSizeMode: 0 // 0: Normal, 1: Large, 2: XL
             },
 
             init() {
@@ -461,6 +465,38 @@
                     this.state.columnsToShow = newCols;
                     this.state.startIndex = 0;
                     this.render();
+                }
+            },
+            
+            toggleFontSize() {
+                // Cycle: 0 -> 1 -> 2 -> 0
+                this.state.fontSizeMode = (this.state.fontSizeMode + 1) % 3;
+                this.renderGrid();
+                this.renderHeader(); // Re-render header to update button state/text
+            },
+            
+            getTextSizeClass(type) {
+                const mode = this.state.fontSizeMode;
+                // Only affect md (desktop) and above
+                switch (type) {
+                    case 'header': // Plan Name
+                        if (mode === 2) return 'text-xs md:text-xl';
+                        if (mode === 1) return 'text-xs md:text-lg';
+                        return 'text-xs md:text-base';
+                    case 'label': // Left Column
+                        if (mode === 2) return 'text-[11px] md:text-lg';
+                        if (mode === 1) return 'text-[11px] md:text-base';
+                        return 'text-[11px] md:text-sm';
+                    case 'content': // Cells
+                        if (mode === 2) return 'text-xs md:text-lg';
+                        if (mode === 1) return 'text-xs md:text-base';
+                        return 'text-xs md:text-sm';
+                    case 'note': // Note row
+                        if (mode === 2) return 'text-xs md:text-lg';
+                        if (mode === 1) return 'text-xs md:text-base';
+                        return 'text-xs md:text-sm';
+                    default:
+                        return '';
                 }
             },
 
@@ -516,25 +552,35 @@
 
             renderHeader() {
                 const container = document.getElementById('header-container');
-                const { hideCommon, visiblePlans } = this.state;
+                const { hideCommon, visiblePlans, fontSizeMode } = this.state;
                 const togglesHtml = AppData.plans.map(p => {
                     const isActive = visiblePlans[p.id];
                     return `<button onclick="App.togglePlan('${p.id}')" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md flex items-center justify-center transition-all ${isActive ? 'bg-[#4B4B4B] text-white shadow-md' : 'text-gray-500 hover:text-gray-300'}">${getIcon(isActive ? 'eye' : 'eye-off', 'w-3 h-3 mr-1.5')} ${p.category.replace('版','')}</button>`;
                 }).join('');
 
                 const hideCommonClass = hideCommon ? 'bg-adobeRed border-adobeRed text-white shadow-lg hover:bg-adobeDarkRed' : 'bg-transparent border-[#444] text-gray-300 hover:bg-[#2A2A2A] hover:text-white';
+                
+                // Font Size Button State
+                const fontLabels = ['Aa 標準', 'Aa 大', 'Aa 特大'];
+                const fontBtnClass = fontSizeMode > 0 ? 'bg-white/10 text-white border-white/30' : 'bg-transparent text-gray-400 border-[#444]';
 
+                // 修正重點：為日期與備註區域加入 whitespace-nowrap 確保不換行
                 container.innerHTML = `
                 <div class="bg-adobeBlack text-white shadow-xl sticky top-0 z-[60]">
-                    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div class="max-w-[1600px] mx-auto px-4 py-4 md:py-6 flex flex-col lg:flex-row items-center justify-between gap-4">
                         <div class="flex flex-col items-start justify-center w-full lg:w-auto">
-                             <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-100">Adobe 企業方案比較表</h1>
-                             <div class="mt-1 flex flex-col md:flex-row md:items-center text-[10px] text-gray-400 gap-1 md:gap-3">
+                             <h1 class="text-lg md:text-3xl font-bold tracking-tight text-gray-100">Adobe 企業方案比較表</h1>
+                             <div class="mt-1 md:mt-2 flex flex-col md:flex-row md:items-center text-[10px] text-gray-400 gap-1 md:gap-3 whitespace-nowrap">
                                 <div class="flex items-center">${getIcon('calendar', 'w-3 h-3 mr-1')} <span>製表日期：${AppData.currentDate}</span></div>
                                 <span class="hidden md:inline">|</span><span>供採購商業用戶整理參考，實際內容仍以官網實際公告為主</span>
                              </div>
                         </div>
                         <div class="flex flex-wrap items-center gap-2 justify-center lg:justify-end w-full lg:w-auto no-print">
+                             <!-- Font Size Toggle (Hidden on mobile) -->
+                             <button onclick="App.toggleFontSize()" class="hidden md:flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] mr-2 ${fontBtnClass} hover:bg-[#2A2A2A] hover:text-white" title="切換字體大小">
+                                ${getIcon('type', 'w-4 h-4 mr-1.5')} ${fontLabels[fontSizeMode]}
+                             </button>
+                             
                              <div class="flex items-center bg-[#2A2A2A] rounded-lg p-1 border border-[#333] order-1 lg:order-1">${togglesHtml}</div>
                              <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] whitespace-nowrap order-2 lg:order-2 ${hideCommonClass}">${getIcon('list-filter', 'w-3 h-3 mr-1.5 ' + (hideCommon ? 'fill-white' : ''))} ${hideCommon?'顯示全部':'只看差異'}</button>
                              <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] order-3 lg:order-3">${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF</button>
@@ -550,14 +596,20 @@
                 const visibleSlice = this.getVisibleSlice();
                 const { columnsToShow, startIndex } = this.state;
                 
-                // Left Label width
-                const labelWidth = window.innerWidth < 768 ? '110px' : '180px';
+                // Left Label width - adjust based on font size? Keep relative
+                const labelWidth = window.innerWidth < 768 ? '110px' : (this.state.fontSizeMode === 2 ? '240px' : (this.state.fontSizeMode === 1 ? '200px' : '180px'));
                 const gridStyle = `grid-template-columns: ${labelWidth} repeat(${visibleSlice.length}, 1fr); display: grid;`;
 
                 const canPrev = startIndex > 0;
                 const canNext = startIndex + columnsToShow < activeAll.length;
+                
+                // Dynamic Text Classes
+                const headerTextClass = this.getTextSizeClass('header');
+                const labelTextClass = this.getTextSizeClass('label');
+                const contentTextClass = this.getTextSizeClass('content');
+                const noteTextClass = this.getTextSizeClass('note');
 
-                let html = `<div class="w-full relative"><div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-200 shadow-sm" style="${gridStyle}"><div class="flex items-center justify-start p-2 pl-4 border-r border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">比較項目</div>`;
+                let html = `<div class="w-full relative"><div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-300 shadow-sm" style="${gridStyle}"><div class="flex items-center justify-start p-2 pl-4 border-r border-gray-300 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">比較項目</div>`;
                 
                 visibleSlice.forEach((plan, idx) => {
                     let preContent = '';
@@ -566,13 +618,13 @@
                     if (idx === visibleSlice.length - 1 && canNext) postContent = `<button onclick="App.nextPage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-1 text-adobeBlack z-30 nav-arrow">${getIcon('chevron-right', 'w-4 h-4')}</button>`;
 
                     // Header Color logic comes from plan.bgColor
-                    html += `<div class="relative p-3 text-center border-r border-gray-200 last:border-r-0 ${plan.bgColor}">
+                    html += `<div class="relative p-3 text-center border-r border-gray-300 last:border-r-0 ${plan.bgColor}">
                         ${preContent} ${postContent}
                         ${plan.isHot ? `<div class="absolute top-1 right-1 z-20"><div class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] px-1.5 py-0.5 rounded shadow-sm font-bold flex items-center">${getIcon('flame', 'w-3 h-3 mr-1 fill-white')} Hot</div></div>` : ''}
                         <div class="inline-flex items-center px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold mb-1 tracking-wide uppercase ${plan.id === 'edition4' ? 'bg-adobeRed text-white' : (plan.id === 'cct_pro_plus' ? 'bg-adobeBlue text-white' : 'bg-gray-200 text-gray-600')}">
                             ${plan.category} ${plan.orientation ? `<span class="mx-1 opacity-60">|</span><span class="text-[9px]">${plan.orientation}</span>` : ''}
                         </div>
-                        <h3 class="text-xs md:text-base font-extrabold text-adobeBlack leading-tight overflow-hidden text-ellipsis whitespace-nowrap">${plan.name}</h3>
+                        <h3 class="${headerTextClass} font-extrabold text-adobeBlack leading-tight break-words">${plan.name}</h3>
                     </div>`;
                 });
                 html += `</div>`;
@@ -588,7 +640,7 @@
                     let iconName = 'star';
                     if (sec === '使用端差異') iconName = 'users';
                     if (sec === '管理端差異') iconName = 'shield';
-                    html += `<div class="col-span-full bg-white px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-800 flex items-center border-y border-gray-200 uppercase tracking-wider sticky left-0 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" style="grid-column: 1 / -1;">${getIcon(iconName, 'w-3 h-3 mr-2')} ${sec}</div>`;
+                    html += `<div class="col-span-full bg-white px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-800 flex items-center border-y border-gray-300 uppercase tracking-wider sticky left-0 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" style="grid-column: 1 / -1;">${getIcon(iconName, 'w-3 h-3 mr-2')} ${sec}</div>`;
                     
                     groups[sec].forEach(col => {
                         const isCommon = this.isCommon(col.key);
@@ -598,14 +650,14 @@
                         if (isNote) {
                             html += `<div style="${gridStyle}"><div class="bg-adobeBlack border-b border-[#333] border-r border-[#333] p-4 flex items-center justify-center md:justify-start md:pl-6"><div class="flex items-center gap-2"><div class="text-adobeRed">${getIcon('info', 'w-4 h-4')}</div><div class="text-xs md:text-sm font-bold text-white uppercase tracking-wider">總結</div></div></div>`;
                             visibleSlice.forEach(plan => {
-                                html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="text-xs md:text-sm font-black text-white leading-relaxed">${plan.note}</span></div>`;
+                                html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="${noteTextClass} font-black text-white leading-relaxed">${plan.note}</span></div>`;
                             });
                             html += `</div>`;
                             return;
                         }
 
-                        html += `<div class="border-b border-gray-100 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
-                        html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-100 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="text-[11px] md:text-sm font-bold text-gray-700 break-words leading-snug">${col.label}</span></div>`;
+                        html += `<div class="border-b border-gray-200 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
+                        html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-200 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="${labelTextClass} font-bold text-gray-700 break-words leading-snug">${col.label}</span></div>`;
                         
                         visibleSlice.forEach(plan => {
                             const val = getPlanVal(plan, col.key);
@@ -635,7 +687,7 @@
                                 displayVal = val.replace(/X/g, '<span class="text-gray-400 font-bold">X</span>');
                             }
                             
-                            let contentHtml = `<span class="text-xs md:text-sm text-center block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
+                            let contentHtml = `<span class="${contentTextClass} text-center block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
                             
                             // Winner Styling (Red Frame)
                             if (isWin) {
@@ -644,12 +696,12 @@
                                     <div class="absolute -top-2.5 right-1 bg-adobeRed text-white text-[9px] px-1.5 py-0.5 rounded-full flex items-center shadow-sm font-bold tracking-tight">
                                         ${getIcon('star', 'w-2 h-2 mr-1 fill-white')} 推薦
                                     </div>
-                                    <span class="text-adobeRed font-bold text-xs md:text-sm whitespace-pre-line">${displayVal}</span>
+                                    <span class="text-adobeRed font-bold ${contentTextClass} whitespace-pre-line">${displayVal}</span>
                                 </div>`;
                             }
                             
                             // Removed opacity/grayscale logic here for unified background
-                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-center border-r border-gray-200 last:border-r-0 cursor-pointer ${cellBg}">${contentHtml}</div>`;
+                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-center border-r border-gray-300 last:border-r-0 cursor-pointer ${cellBg}">${contentHtml}</div>`;
                         });
                         html += `</div>`;
                     });
@@ -658,7 +710,9 @@
                 html += `</div>`;
                 container.innerHTML = html;
             },
-
+            
+            // ... (rest of the methods remain unchanged)
+            
             openFeatureModal(key) {
                 const col = AppData.columns.find(c => c.key === key);
                 if(!col) return;
